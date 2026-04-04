@@ -23,4 +23,6 @@ jobs:
           cache: maven
 
       - name: Run tests (Maven Wrapper)
-        run: ./mvnw -B test
+        run: |
+          chmod +x mvnw
+          ./mvnw -B test
