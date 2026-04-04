@@ -11,6 +11,22 @@ permissions:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: project_test
+          POSTGRES_USER: project
+          POSTGRES_PASSWORD: project
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U project -d project_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
@@ -23,6 +39,11 @@ jobs:
           cache: maven
 
       - name: Run tests (Maven Wrapper)
+        env:
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/project_test
+          SPRING_DATASOURCE_USERNAME: project
+          SPRING_DATASOURCE_PASSWORD: project
+          SPRING_JPA_HIBERNATE_DDL_AUTO: create-drop
         run: |
           chmod +x mvnw
           ./mvnw -B test
