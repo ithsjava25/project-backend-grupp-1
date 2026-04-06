@@ -4,13 +4,10 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.*;
+import org.group1.projectbackend.entity.enums.ActivityType;
 
 import java.time.LocalDateTime;
 
-/**
- * ActivityLog entity class.
- * Records activities and actions performed by users within the application.
- */
 @Entity
 @Table(name = "activity_logs")
 @Getter
@@ -24,31 +21,28 @@ public class ActivityLog {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "Action description cannot be empty")
-    @Size(max = 255, message = "Action description cannot exceed 255 characters")
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String action;
+    private ActivityType action;
 
-    @NotBlank(message = "Entity type cannot be empty")
-    @Size(max = 50, message = "Entity type cannot exceed 50 characters")
-    @Column(nullable = false)
-    private String entityType;
-
-    @Column(nullable = false)
-    private Long entityId;
+    @NotBlank(message = "Description cannot be empty")
+    @Size(max = 1000, message = "Description cannot exceed 1000 characters")
+    @Column(nullable = false, length = 1000)
+    private String description;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "document_id", nullable = false)
+    private Document document;
+
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    /**
-     * Automatically sets the creation date before the entity is persisted.
-     */
     @PrePersist
     protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
+        createdAt = LocalDateTime.now();
     }
 }

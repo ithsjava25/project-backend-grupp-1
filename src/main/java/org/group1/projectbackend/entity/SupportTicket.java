@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.*;
+import org.group1.projectbackend.entity.enums.TicketPriority;
+import org.group1.projectbackend.entity.enums.TicketStatus;
 
 import java.time.LocalDateTime;
 
@@ -63,19 +65,5 @@ public class SupportTicket {
     @PreUpdate
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
-    }
-
-    /**
-     * Enum for support ticket status.
-     */
-    public enum TicketStatus {
-        OPEN, IN_PROGRESS, RESOLVED, CLOSED
-    }
-
-    /**
-     * Enum for support ticket priority.
-     */
-    public enum TicketPriority {
-        LOW, MEDIUM, HIGH, URGENT
     }
 }
