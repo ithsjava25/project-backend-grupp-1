@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.*;
+import org.group1.projectbackend.entity.enums.TicketPriority;
+import org.group1.projectbackend.entity.enums.TicketStatus;
 
 import java.time.LocalDateTime;
 
@@ -45,8 +47,8 @@ public class SupportTicket {
     private TicketPriority priority = TicketPriority.MEDIUM;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @JoinColumn(name = "created_by_user_id", nullable = false)
+    private User createdBy;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -63,19 +65,5 @@ public class SupportTicket {
     @PreUpdate
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
-    }
-
-    /**
-     * Enum for support ticket status.
-     */
-    public enum TicketStatus {
-        OPEN, IN_PROGRESS, RESOLVED, CLOSED
-    }
-
-    /**
-     * Enum for support ticket priority.
-     */
-    public enum TicketPriority {
-        LOW, MEDIUM, HIGH, URGENT
     }
 }
