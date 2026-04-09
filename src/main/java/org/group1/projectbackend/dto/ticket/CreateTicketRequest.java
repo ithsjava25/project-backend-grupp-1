@@ -1,6 +1,7 @@
 package org.group1.projectbackend.dto.ticket;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import org.group1.projectbackend.entity.enums.TicketPriority;
 
@@ -13,6 +14,7 @@ public record CreateTicketRequest(
         @Size(min = 10, max = 1000, message = "Description must be between 10 and 1000 characters")
         String description,
 
+        @NotNull(message = "Priority is required")
         TicketPriority priority
 ) {
 }

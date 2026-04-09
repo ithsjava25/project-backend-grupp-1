@@ -31,6 +31,10 @@ public final class SupportTicketMapper {
     }
 
     public static List<TicketResponse> toResponseList(List<SupportTicket> tickets) {
+        if (tickets == null) {
+            return List.of();
+        }
+
         return tickets.stream()
                 .map(SupportTicketMapper::toResponse)
                 .toList();
