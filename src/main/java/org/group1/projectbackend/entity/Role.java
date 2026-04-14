@@ -3,7 +3,6 @@ package org.group1.projectbackend.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.group1.projectbackend.entity.enums.RoleName;
-
 import java.util.HashSet;
 import java.util.Set;
 
