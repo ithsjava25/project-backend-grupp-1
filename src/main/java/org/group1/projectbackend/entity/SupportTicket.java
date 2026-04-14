@@ -47,8 +47,8 @@ public class SupportTicket {
     private TicketPriority priority = TicketPriority.MEDIUM;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @JoinColumn(name = "created_by_user_id", nullable = false)
+    private User createdBy;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;

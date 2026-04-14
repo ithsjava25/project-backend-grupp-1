@@ -1,0 +1,7 @@
+package org.group1.projectbackend.repository;
+
+import org.group1.projectbackend.entity.Comment;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface CommentRepository extends JpaRepository<Comment, Long> {
+}

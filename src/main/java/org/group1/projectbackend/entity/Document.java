@@ -43,6 +43,10 @@ public class Document {
     @JoinColumn(name = "user_id", nullable = false)
     private User owner;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ticket_id", nullable = false)
+    private SupportTicket ticket;
+
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
