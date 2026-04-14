@@ -2,6 +2,7 @@ package org.group1.projectbackend.service.impl;
 
 import org.group1.projectbackend.entity.SupportTicket;
 import org.group1.projectbackend.entity.User;
+import org.group1.projectbackend.entity.enums.TicketStatus;
 import org.group1.projectbackend.repository.SupportTicketRepository;
 import org.group1.projectbackend.repository.UserRepository;
 import org.group1.projectbackend.service.SupportTicketService;
@@ -28,7 +29,7 @@ public class SupportTicketServiceImpl implements SupportTicketService {
         SupportTicket ticket = SupportTicket.builder()
                 .title(title)
                 .description(description)
-                .user(user)
+                .createdBy(user)
                 .build();
 
         return supportTicketRepository.save(ticket);
@@ -39,7 +40,7 @@ public class SupportTicketServiceImpl implements SupportTicketService {
         SupportTicket ticket = supportTicketRepository.findById(ticketId)
                 .orElseThrow(() -> new RuntimeException("Ticket not found"));
 
-        SupportTicket.TicketStatus ticketStatus = SupportTicket.TicketStatus.valueOf(status);
+        TicketStatus ticketStatus = TicketStatus.valueOf(status);
         ticket.setStatus(ticketStatus);
 
         return supportTicketRepository.save(ticket);
@@ -47,6 +48,6 @@ public class SupportTicketServiceImpl implements SupportTicketService {
 
     @Override
     public List<SupportTicket> getTicketsForUser(Long userId) {
-        return supportTicketRepository.findByUserId(userId);
+        return supportTicketRepository.findByCreatedById(userId);
     }
 }

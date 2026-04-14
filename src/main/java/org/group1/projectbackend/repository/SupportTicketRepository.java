@@ -10,7 +10,7 @@ import java.util.List;
 @Repository
 public interface SupportTicketRepository extends JpaRepository<SupportTicket, Long> {
 
-    List<SupportTicket> findByUserId(Long userId);
+    List<SupportTicket> findByCreatedById(Long userId);
 
     List<SupportTicket> findByStatus(TicketStatus status);
 }
