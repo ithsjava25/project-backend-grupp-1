@@ -1,10 +1,21 @@
 package org.group1.projectbackend.entity.enums;
 
 public enum ActivityType {
+
+    // Generic actions
     CREATED,
     UPDATED,
+    DELETED,
+
+    // Ticket actions
     STATUS_CHANGED,
-    COMMENT_ADDED,
+    ASSIGNED,
+
+    // Comment actions
+    COMMENT_CREATED,
+    COMMENT_UPDATED,
+
+    // File actions
     FILE_UPLOADED,
-    ASSIGNED
+    FILE_DELETED
 }
