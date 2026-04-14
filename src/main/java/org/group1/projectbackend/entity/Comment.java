@@ -25,7 +25,7 @@ public class Comment {
     private Long id;
 
     @NotBlank(message = "Comment content cannot be empty")
-    @Size(min = 1, max = 2000, message = "Comment content must be between 1 and 2000 characters")
+    @Size(max = 2000, message = "Comment content must be between 1 and 2000 characters")
     @Column(nullable = false, length = 2000)
     private String content;
 
@@ -40,7 +40,7 @@ public class Comment {
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @Column
+    @Column(nullable = false)
     private LocalDateTime updatedAt;
 
     /**
