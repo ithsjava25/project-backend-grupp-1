@@ -14,12 +14,13 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<Map<String, Object>> handleResourceNotFound(ResourceNotFoundException ex) {
+        String message = ex.getMessage() != null ? ex.getMessage() : "Resource not found";
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(Map.of(
                         "timestamp", LocalDateTime.now(),
                         "status", HttpStatus.NOT_FOUND.value(),
                         "error", "Not Found",
-                        "message", ex.getMessage()
+                        "message", message
                 ));
     }
 
