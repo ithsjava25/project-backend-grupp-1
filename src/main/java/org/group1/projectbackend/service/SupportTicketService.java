@@ -1,14 +1,17 @@
 package org.group1.projectbackend.service;
 
-import org.group1.projectbackend.entity.SupportTicket;
-
 import java.util.List;
+import org.group1.projectbackend.dto.ticket.CreateTicketRequest;
+import org.group1.projectbackend.dto.ticket.TicketResponse;
+import org.group1.projectbackend.dto.ticket.UpdateTicketStatusRequest;
 
 public interface SupportTicketService {
 
-    SupportTicket createTicket(Long userId, String title, String description);
+    TicketResponse createTicket(Long userId, CreateTicketRequest request);
 
-    SupportTicket updateStatus(Long ticketId, String status);
+    TicketResponse getTicketById(Long ticketId);
 
-    List<SupportTicket> getTicketsForUser(Long userId);
+    TicketResponse updateStatus(Long ticketId, UpdateTicketStatusRequest request);
+
+    List<TicketResponse> getTicketsForUser(Long userId);
 }

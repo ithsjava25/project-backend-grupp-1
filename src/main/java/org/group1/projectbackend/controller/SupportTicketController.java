@@ -1,16 +1,19 @@
 package org.group1.projectbackend.controller;
 
-import org.group1.projectbackend.entity.SupportTicket;
+import jakarta.validation.Valid;
+import java.util.List;
+import org.group1.projectbackend.dto.ticket.CreateTicketRequest;
+import org.group1.projectbackend.dto.ticket.TicketResponse;
+import org.group1.projectbackend.dto.ticket.UpdateTicketStatusRequest;
 import org.group1.projectbackend.service.SupportTicketService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/tickets")
@@ -23,24 +26,28 @@ public class SupportTicketController {
     }
 
     @PostMapping
-    public SupportTicket createTicket(
+    public TicketResponse createTicket(
             @RequestParam Long userId,
-            @RequestParam String title,
-            @RequestParam String description
+            @Valid @RequestBody CreateTicketRequest request
     ) {
-        return supportTicketService.createTicket(userId, title, description);
+        return supportTicketService.createTicket(userId, request);
+    }
+
+    @GetMapping("/{id}")
+    public TicketResponse getTicketById(@PathVariable Long id) {
+        return supportTicketService.getTicketById(id);
     }
 
     @PutMapping("/{id}/status")
-    public SupportTicket updateTicketStatus(
+    public TicketResponse updateTicketStatus(
             @PathVariable Long id,
-            @RequestParam String status
+            @Valid @RequestBody UpdateTicketStatusRequest request
     ) {
-        return supportTicketService.updateStatus(id, status);
+        return supportTicketService.updateStatus(id, request);
     }
 
     @GetMapping("/user/{userId}")
-    public List<SupportTicket> getTicketsForUser(@PathVariable Long userId) {
+    public List<TicketResponse> getTicketsForUser(@PathVariable Long userId) {
         return supportTicketService.getTicketsForUser(userId);
     }
 }
