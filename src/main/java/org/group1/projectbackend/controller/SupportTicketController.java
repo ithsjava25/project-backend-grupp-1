@@ -2,6 +2,7 @@ package org.group1.projectbackend.controller;
 
 import jakarta.validation.Valid;
 import java.util.List;
+import java.security.Principal;
 import org.group1.projectbackend.dto.ticket.CreateTicketRequest;
 import org.group1.projectbackend.dto.ticket.TicketResponse;
 import org.group1.projectbackend.dto.ticket.UpdateTicketStatusRequest;
@@ -12,7 +13,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -27,10 +27,14 @@ public class SupportTicketController {
 
     @PostMapping
     public TicketResponse createTicket(
-            @RequestParam Long userId,
+            Principal principal,
             @Valid @RequestBody CreateTicketRequest request
     ) {
-        return supportTicketService.createTicket(userId, request);
+        if (principal == null) {
+            throw new IllegalStateException("Authenticated principal is required");
+        }
+
+        return supportTicketService.createTicket(principal.getName(), request);
     }
 
     @GetMapping("/{id}")

@@ -67,10 +67,10 @@ class SupportTicketServiceTest {
                 TicketPriority.HIGH
         );
 
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userRepository.findByUsername("alice")).thenReturn(Optional.of(user));
         when(supportTicketRepository.save(any(SupportTicket.class))).thenReturn(ticket);
 
-        TicketResponse response = supportTicketService.createTicket(1L, request);
+        TicketResponse response = supportTicketService.createTicket("alice", request);
 
         assertThat(response).isNotNull();
         assertThat(response.id()).isEqualTo(10L);

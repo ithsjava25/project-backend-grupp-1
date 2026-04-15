@@ -25,9 +25,9 @@ public class SupportTicketServiceImpl implements SupportTicketService {
     }
 
     @Override
-    public TicketResponse createTicket(Long userId, CreateTicketRequest request) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+    public TicketResponse createTicket(String username, CreateTicketRequest request) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with username: " + username));
 
         SupportTicket ticket = SupportTicket.builder()
                 .title(request.title())

@@ -61,7 +61,6 @@ class SupportTicketControllerTest {
 
         mockMvc.perform(post("/api/tickets")
                         .with(SecurityMockMvcRequestPostProcessors.csrf())
-                        .param("userId", "1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {

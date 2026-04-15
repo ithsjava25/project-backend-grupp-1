@@ -7,7 +7,7 @@ import org.group1.projectbackend.dto.ticket.UpdateTicketStatusRequest;
 
 public interface SupportTicketService {
 
-    TicketResponse createTicket(Long userId, CreateTicketRequest request);
+    TicketResponse createTicket(String username, CreateTicketRequest request);
 
     TicketResponse getTicketById(Long ticketId);
 
