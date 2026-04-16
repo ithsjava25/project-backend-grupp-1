@@ -9,7 +9,7 @@ import java.util.List;
 @Repository
 public interface CommentRepository extends JpaRepository<Comment, Long> {
 
-    // Find comments by support ticket id and sort
+    // Returns all comments for a specific support ticket, sorted by the given sort order
     List<Comment> findByTicket_Id(Long ticketId, Sort sort);
 
 }
