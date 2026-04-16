@@ -64,7 +64,7 @@ public class ActivityLogService {
     }
 
     public List<ActivityLogDto> getActivityLogsByDocumentId(Long documentId, String sortDirection) {
-        Sort sort = sortDirection.equalsIgnoreCase("desc")
+        Sort sort = sortDirection.equalsIgnoreCase("desc")|
                 ? Sort.by("createdAt").descending()
                 : Sort.by("createdAt").ascending();
 
