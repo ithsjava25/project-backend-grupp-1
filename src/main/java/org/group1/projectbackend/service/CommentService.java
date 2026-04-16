@@ -43,20 +43,21 @@ public class CommentService {
                 .orElseThrow(() -> new RuntimeException("Support ticket not found with id: " + dto.getSupportTicketId()));
 
         Comment comment = commentMapper.toEntity(dto, user, ticket);
-
         Comment savedComment = commentRepository.save(comment);
 
-        CreateActivityLogDto logDto = new CreateActivityLogDto(
-                ActivityType.COMMENT_CREATED,
-                "Comment created for ticket id: " + ticket.getId(),
-                user.getId(),
-                null
-        );
-
-        activityLogService.createActivityLog(logDto);
+        try {
+            CreateActivityLogDto logDto = new CreateActivityLogDto(
+                    ActivityType.COMMENT_CREATED,
+                    "Comment created for ticket id: " + ticket.getId(),
+                    user.getId(),
+                    null
+            );
+            activityLogService.createActivityLog(logDto);
+        } catch (Exception e) {
+            System.err.println("Failed to create activity log: " + e.getMessage());
+        }
 
         return commentMapper.toDto(savedComment);
-
     }
 
     // Get comments by ticketId
