@@ -23,7 +23,7 @@ public class ActivityLog {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private ActivityType action;
+    private ActivityType activityType;
 
     @NotBlank(message = "Description cannot be empty")
     @Size(max = 1000, message = "Description cannot exceed 1000 characters")
@@ -35,7 +35,7 @@ public class ActivityLog {
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "document_id", nullable = false)
+    @JoinColumn(name = "document_id")
     private Document document;
 
     @Column(nullable = false, updatable = false)

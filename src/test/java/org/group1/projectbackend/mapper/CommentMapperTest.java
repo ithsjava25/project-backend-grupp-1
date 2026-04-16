@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test;
 import java.time.LocalDateTime;
 import static org.assertj.core.api.Assertions.assertThat;
 
-
 public class CommentMapperTest {
 
     private CommentMapper commentMapper;
@@ -54,10 +53,18 @@ public class CommentMapperTest {
     void toEntityShouldReturnCommentWhenDtoIsNotNull() {
         CreateCommentDto dto = new CreateCommentDto("Test content", 10L, 1L);
 
-        Comment comment = commentMapper.toEntity(dto);
+        User user = new User();
+        user.setId(1L);
+
+        SupportTicket ticket = new SupportTicket();
+        ticket.setId(10L);
+
+        Comment comment = commentMapper.toEntity(dto, user, ticket);
 
         assertThat(comment).isNotNull();
         assertThat(comment.getContent()).isEqualTo("Test content");
+        assertThat(comment.getUser()).isEqualTo(user);
+        assertThat(comment.getTicket()).isEqualTo(ticket);
     }
 
     @Test
