@@ -16,7 +16,7 @@ public class ActivityLogDto {
     private ActivityType activityType;
     private String description;
     private Long userId;
-    private Long documentId;
+    private Long supportTicketId;
     private LocalDateTime createdAt;
 
 }

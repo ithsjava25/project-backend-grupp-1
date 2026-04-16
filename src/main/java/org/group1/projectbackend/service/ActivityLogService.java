@@ -3,11 +3,11 @@ package org.group1.projectbackend.service;
 import org.group1.projectbackend.dto.activitylog.ActivityLogDto;
 import org.group1.projectbackend.dto.activitylog.CreateActivityLogDto;
 import org.group1.projectbackend.entity.ActivityLog;
-import org.group1.projectbackend.entity.Document;
+import org.group1.projectbackend.entity.SupportTicket;
 import org.group1.projectbackend.entity.User;
 import org.group1.projectbackend.mapper.ActivityLogMapper;
 import org.group1.projectbackend.repository.ActivityLogRepository;
-import org.group1.projectbackend.repository.DocumentRepository;
+import org.group1.projectbackend.repository.SupportTicketRepository;
 import org.group1.projectbackend.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Sort;
@@ -21,29 +21,29 @@ public class ActivityLogService {
     private final ActivityLogRepository activityLogRepository;
     private final ActivityLogMapper activityLogMapper;
     private final UserRepository userRepository;
-    private final DocumentRepository documentRepository;
+    private final SupportTicketRepository supportTicketRepository;
 
     public ActivityLogService(ActivityLogRepository activityLogRepository,
                               ActivityLogMapper activityLogMapper,
                               UserRepository userRepository,
-                              DocumentRepository documentRepository) {
+                              SupportTicketRepository supportTicketRepository) {
         this.activityLogRepository = activityLogRepository;
         this.activityLogMapper = activityLogMapper;
         this.userRepository = userRepository;
-        this.documentRepository = documentRepository;
+        this.supportTicketRepository = supportTicketRepository;
     }
 
     public ActivityLogDto createActivityLog(CreateActivityLogDto dto) {
         User user = userRepository.findById(dto.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + dto.getUserId()));
 
-        Document document = null;
-        if (dto.getDocumentId() != null) {
-            document = documentRepository.findById(dto.getDocumentId())
-                    .orElseThrow(() -> new RuntimeException("Document not found with id: " + dto.getDocumentId()));
+        SupportTicket supportTicket = null;
+        if (dto.getSupportTicketId() != null) {
+            supportTicket = supportTicketRepository.findById(dto.getSupportTicketId())
+                    .orElseThrow(() -> new RuntimeException("Support ticket not found with id: " + dto.getSupportTicketId()));
         }
 
-        ActivityLog activityLog = activityLogMapper.toEntity(dto, user, document);
+        ActivityLog activityLog = activityLogMapper.toEntity(dto, user, supportTicket);
         ActivityLog saved = activityLogRepository.save(activityLog);
 
         return activityLogMapper.toDto(saved);
@@ -63,12 +63,12 @@ public class ActivityLogService {
         return activityLogMapper.toDto(activityLog);
     }
 
-    public List<ActivityLogDto> getActivityLogsByDocumentId(Long documentId, String sortDirection) {
+    public List<ActivityLogDto> getActivityLogsBySupportTicketId(Long supportTicketId, String sortDirection) {
         Sort sort = "desc".equalsIgnoreCase(sortDirection)
                 ? Sort.by("createdAt").descending()
                 : Sort.by("createdAt").ascending();
 
-        return activityLogRepository.findByDocumentId(documentId, sort)
+        return activityLogRepository.findBySupportTicketId(supportTicketId, sort)
                 .stream()
                 .map(activityLogMapper::toDto)
                 .toList();

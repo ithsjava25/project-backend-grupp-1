@@ -12,7 +12,9 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+
 import java.util.List;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -29,13 +31,14 @@ public class ActivityLogControllerTest {
 
     @MockitoBean
     private ActivityLogService activityLogService;
+
     private ActivityLogDto activityLogDto;
 
     @BeforeEach
     void setUp() {
         activityLogDto = new ActivityLogDto(
                 1L,
-                ActivityType.CREATED,
+                ActivityType.TICKET_CREATED,
                 "Test description",
                 1L,
                 1L,
@@ -54,18 +57,18 @@ public class ActivityLogControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
-                                  "activityType":"CREATED",
+                                  "activityType":"TICKET_CREATED",
                                   "description":"Test description",
                                   "userId":1,
-                                  "documentId":1
+                                  "supportTicketId":1
                                 }
                                 """))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.activityType").value("CREATED"))
+                .andExpect(jsonPath("$.activityType").value("TICKET_CREATED"))
                 .andExpect(jsonPath("$.description").value("Test description"))
                 .andExpect(jsonPath("$.userId").value(1))
-                .andExpect(jsonPath("$.documentId").value(1));
+                .andExpect(jsonPath("$.supportTicketId").value(1));
     }
 
     @Test
@@ -77,10 +80,10 @@ public class ActivityLogControllerTest {
         mockMvc.perform(get("/activitylogs"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(1))
-                .andExpect(jsonPath("$[0].activityType").value("CREATED"))
+                .andExpect(jsonPath("$[0].activityType").value("TICKET_CREATED"))
                 .andExpect(jsonPath("$[0].description").value("Test description"))
                 .andExpect(jsonPath("$[0].userId").value(1))
-                .andExpect(jsonPath("$[0].documentId").value(1));
+                .andExpect(jsonPath("$[0].supportTicketId").value(1));
     }
 
     @Test
@@ -92,25 +95,25 @@ public class ActivityLogControllerTest {
         mockMvc.perform(get("/activitylogs/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.activityType").value("CREATED"))
+                .andExpect(jsonPath("$.activityType").value("TICKET_CREATED"))
                 .andExpect(jsonPath("$.description").value("Test description"))
                 .andExpect(jsonPath("$.userId").value(1))
-                .andExpect(jsonPath("$.documentId").value(1));
+                .andExpect(jsonPath("$.supportTicketId").value(1));
     }
 
     @Test
     @WithMockUser
-    void testGetActivityLogsByDocumentId() throws Exception {
-        when(activityLogService.getActivityLogsByDocumentId(1L, "asc"))
+    void testGetActivityLogsBySupportTicketId() throws Exception {
+        when(activityLogService.getActivityLogsBySupportTicketId(1L, "asc"))
                 .thenReturn(List.of(activityLogDto));
 
-        mockMvc.perform(get("/activitylogs/document/1"))
+        mockMvc.perform(get("/activitylogs/ticket/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(1))
-                .andExpect(jsonPath("$[0].activityType").value("CREATED"))
+                .andExpect(jsonPath("$[0].activityType").value("TICKET_CREATED"))
                 .andExpect(jsonPath("$[0].description").value("Test description"))
                 .andExpect(jsonPath("$[0].userId").value(1))
-                .andExpect(jsonPath("$[0].documentId").value(1));
+                .andExpect(jsonPath("$[0].supportTicketId").value(1));
     }
 
     @Test
@@ -122,9 +125,9 @@ public class ActivityLogControllerTest {
         mockMvc.perform(get("/activitylogs/user/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(1))
-                .andExpect(jsonPath("$[0].activityType").value("CREATED"))
+                .andExpect(jsonPath("$[0].activityType").value("TICKET_CREATED"))
                 .andExpect(jsonPath("$[0].description").value("Test description"))
                 .andExpect(jsonPath("$[0].userId").value(1))
-                .andExpect(jsonPath("$[0].documentId").value(1));
+                .andExpect(jsonPath("$[0].supportTicketId").value(1));
     }
 }

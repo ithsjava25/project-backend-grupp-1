@@ -3,12 +3,12 @@ package org.group1.projectbackend.service;
 import org.group1.projectbackend.dto.activitylog.ActivityLogDto;
 import org.group1.projectbackend.dto.activitylog.CreateActivityLogDto;
 import org.group1.projectbackend.entity.ActivityLog;
-import org.group1.projectbackend.entity.Document;
+import org.group1.projectbackend.entity.SupportTicket;
 import org.group1.projectbackend.entity.User;
 import org.group1.projectbackend.entity.enums.ActivityType;
 import org.group1.projectbackend.mapper.ActivityLogMapper;
 import org.group1.projectbackend.repository.ActivityLogRepository;
-import org.group1.projectbackend.repository.DocumentRepository;
+import org.group1.projectbackend.repository.SupportTicketRepository;
 import org.group1.projectbackend.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -42,7 +42,7 @@ public class ActivityLogServiceTest {
     private UserRepository userRepository;
 
     @Mock
-    private DocumentRepository documentRepository;
+    private SupportTicketRepository supportTicketRepository;
 
     @InjectMocks
     private ActivityLogService activityLogService;
@@ -51,27 +51,27 @@ public class ActivityLogServiceTest {
     private ActivityLogDto activityLogDto;
     private CreateActivityLogDto createActivityLogDto;
     private User user;
-    private Document document;
+    private SupportTicket supportTicket;
 
     @BeforeEach
     void setUp() {
         user = new User();
         user.setId(1L);
 
-        document = new Document();
-        document.setId(10L);
+        supportTicket = new SupportTicket();
+        supportTicket.setId(10L);
 
         activityLog = new ActivityLog();
         activityLog.setId(100L);
-        activityLog.setActivityType(ActivityType.CREATED);
+        activityLog.setActivityType(ActivityType.TICKET_CREATED);
         activityLog.setDescription("Test activity log");
         activityLog.setUser(user);
-        activityLog.setDocument(document);
+        activityLog.setSupportTicket(supportTicket);
         activityLog.setCreatedAt(LocalDateTime.now());
 
         activityLogDto = new ActivityLogDto(
                 100L,
-                ActivityType.CREATED,
+                ActivityType.TICKET_CREATED,
                 "Test activity log",
                 1L,
                 10L,
@@ -79,7 +79,7 @@ public class ActivityLogServiceTest {
         );
 
         createActivityLogDto = new CreateActivityLogDto(
-                ActivityType.CREATED,
+                ActivityType.TICKET_CREATED,
                 "Test activity log",
                 1L,
                 10L
@@ -89,8 +89,8 @@ public class ActivityLogServiceTest {
     @Test
     void shouldCreateActivityLogWhenDtoIsValid() {
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-        when(documentRepository.findById(10L)).thenReturn(Optional.of(document));
-        when(activityLogMapper.toEntity(createActivityLogDto, user, document)).thenReturn(activityLog);
+        when(supportTicketRepository.findById(10L)).thenReturn(Optional.of(supportTicket));
+        when(activityLogMapper.toEntity(createActivityLogDto, user, supportTicket)).thenReturn(activityLog);
         when(activityLogRepository.save(activityLog)).thenReturn(activityLog);
         when(activityLogMapper.toDto(activityLog)).thenReturn(activityLogDto);
 
@@ -98,47 +98,47 @@ public class ActivityLogServiceTest {
 
         assertThat(result).isNotNull();
         assertThat(result.getDescription()).isEqualTo("Test activity log");
-        assertThat(result.getActivityType()).isEqualTo(ActivityType.CREATED);
+        assertThat(result.getActivityType()).isEqualTo(ActivityType.TICKET_CREATED);
         verify(activityLogRepository).save(activityLog);
     }
 
     @Test
-    void shouldCreateActivityLogWithoutDocumentWhenDocumentIdIsNull() {
-        CreateActivityLogDto dtoWithoutDocument = new CreateActivityLogDto(
-                ActivityType.CREATED,
+    void shouldCreateActivityLogWithoutSupportTicketWhenSupportTicketIdIsNull() {
+        CreateActivityLogDto dtoWithoutSupportTicket = new CreateActivityLogDto(
+                ActivityType.TICKET_CREATED,
                 "Test activity log",
                 1L,
                 null
         );
 
-        ActivityLog activityLogWithoutDocument = new ActivityLog();
-        activityLogWithoutDocument.setId(101L);
-        activityLogWithoutDocument.setActivityType(ActivityType.CREATED);
-        activityLogWithoutDocument.setDescription("Test activity log");
-        activityLogWithoutDocument.setUser(user);
-        activityLogWithoutDocument.setDocument(null);
-        activityLogWithoutDocument.setCreatedAt(LocalDateTime.now());
+        ActivityLog activityLogWithoutSupportTicket = new ActivityLog();
+        activityLogWithoutSupportTicket.setId(101L);
+        activityLogWithoutSupportTicket.setActivityType(ActivityType.TICKET_CREATED);
+        activityLogWithoutSupportTicket.setDescription("Test activity log");
+        activityLogWithoutSupportTicket.setUser(user);
+        activityLogWithoutSupportTicket.setSupportTicket(null);
+        activityLogWithoutSupportTicket.setCreatedAt(LocalDateTime.now());
 
-        ActivityLogDto activityLogDtoWithoutDocument = new ActivityLogDto(
+        ActivityLogDto activityLogDtoWithoutSupportTicket = new ActivityLogDto(
                 101L,
-                ActivityType.CREATED,
+                ActivityType.TICKET_CREATED,
                 "Test activity log",
                 1L,
                 null,
-                activityLogWithoutDocument.getCreatedAt()
+                activityLogWithoutSupportTicket.getCreatedAt()
         );
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-        when(activityLogMapper.toEntity(dtoWithoutDocument, user, null)).thenReturn(activityLogWithoutDocument);
-        when(activityLogRepository.save(activityLogWithoutDocument)).thenReturn(activityLogWithoutDocument);
-        when(activityLogMapper.toDto(activityLogWithoutDocument)).thenReturn(activityLogDtoWithoutDocument);
+        when(activityLogMapper.toEntity(dtoWithoutSupportTicket, user, null)).thenReturn(activityLogWithoutSupportTicket);
+        when(activityLogRepository.save(activityLogWithoutSupportTicket)).thenReturn(activityLogWithoutSupportTicket);
+        when(activityLogMapper.toDto(activityLogWithoutSupportTicket)).thenReturn(activityLogDtoWithoutSupportTicket);
 
-        ActivityLogDto result = activityLogService.createActivityLog(dtoWithoutDocument);
+        ActivityLogDto result = activityLogService.createActivityLog(dtoWithoutSupportTicket);
 
         assertThat(result).isNotNull();
-        assertThat(result.getDocumentId()).isNull();
+        assertThat(result.getSupportTicketId()).isNull();
         assertThat(result.getDescription()).isEqualTo("Test activity log");
-        verify(activityLogRepository).save(activityLogWithoutDocument);
+        verify(activityLogRepository).save(activityLogWithoutSupportTicket);
     }
 
     @Test
@@ -167,18 +167,18 @@ public class ActivityLogServiceTest {
     }
 
     @Test
-    void shouldReturnActivityLogsByDocumentId() {
-        when(activityLogRepository.findByDocumentId(eq(10L), any(Sort.class)))
+    void shouldReturnActivityLogsBySupportTicketId() {
+        when(activityLogRepository.findBySupportTicketId(eq(10L), any(Sort.class)))
                 .thenReturn(List.of(activityLog));
         when(activityLogMapper.toDto(activityLog)).thenReturn(activityLogDto);
 
         List<ActivityLogDto> result =
-                activityLogService.getActivityLogsByDocumentId(10L, "asc");
+                activityLogService.getActivityLogsBySupportTicketId(10L, "asc");
 
         assertThat(result).hasSize(1);
-        assertThat(result.get(0).getDocumentId()).isEqualTo(10L);
+        assertThat(result.get(0).getSupportTicketId()).isEqualTo(10L);
         assertThat(result.get(0).getDescription()).isEqualTo("Test activity log");
-        verify(activityLogRepository).findByDocumentId(eq(10L), any(Sort.class));
+        verify(activityLogRepository).findBySupportTicketId(eq(10L), any(Sort.class));
     }
 
     @Test
@@ -206,13 +206,13 @@ public class ActivityLogServiceTest {
     }
 
     @Test
-    void shouldThrowExceptionWhenDocumentDoesNotExist() {
+    void shouldThrowExceptionWhenSupportTicketDoesNotExist() {
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-        when(documentRepository.findById(10L)).thenReturn(Optional.empty());
+        when(supportTicketRepository.findById(10L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> activityLogService.createActivityLog(createActivityLogDto))
                 .isInstanceOf(RuntimeException.class)
-                .hasMessage("Document not found with id: 10");
+                .hasMessage("Support ticket not found with id: 10");
     }
 
     @Test

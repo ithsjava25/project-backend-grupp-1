@@ -50,7 +50,7 @@ public class CommentService {
                     ActivityType.COMMENT_CREATED,
                     "Comment created for ticket id: " + ticket.getId(),
                     user.getId(),
-                    null
+                    ticket.getId()
             );
             activityLogService.createActivityLog(logDto);
         } catch (Exception e) {
@@ -91,7 +91,7 @@ public class CommentService {
                 ActivityType.COMMENT_DELETED,
                 "Comment deleted with id: " + comment.getId(),
                 comment.getUser().getId(),
-                null
+                comment.getTicket().getId()
         );
 
         activityLogService.createActivityLog(logDto);
@@ -109,7 +109,7 @@ public class CommentService {
                 ActivityType.COMMENT_UPDATED,
                 "Comment updated with id: " + existingComment.getId(),
                 existingComment.getUser().getId(),
-                null
+                existingComment.getTicket().getId()
         );
 
         activityLogService.createActivityLog(logDto);

@@ -25,6 +25,6 @@ public class CreateActivityLogDto {
     @NotNull
     private Long userId;
 
-    private Long documentId;
+    private Long supportTicketId;
 
 }

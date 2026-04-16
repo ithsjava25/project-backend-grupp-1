@@ -40,14 +40,14 @@ public class ActivityLogController {
         return ResponseEntity.ok(activityLog);
     }
 
-    // Get activity logs by document id
-    @GetMapping("/document/{documentId}")
-    public ResponseEntity<List<ActivityLogDto>> getActivityLogsByDocumentId(
-            @PathVariable Long documentId,
+    // Get activity logs by support ticket id
+    @GetMapping("/ticket/{supportTicketId}")
+    public ResponseEntity<List<ActivityLogDto>> getActivityLogsBySupportTicketId(
+            @PathVariable Long supportTicketId,
             @RequestParam(defaultValue = "asc") String sortDirection
     ) {
         return ResponseEntity.ok(
-                activityLogService.getActivityLogsByDocumentId(documentId, sortDirection)
+                activityLogService.getActivityLogsBySupportTicketId(supportTicketId, sortDirection)
         );
     }
 

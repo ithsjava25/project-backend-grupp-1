@@ -3,7 +3,7 @@ package org.group1.projectbackend.mapper;
 import org.group1.projectbackend.dto.activitylog.ActivityLogDto;
 import org.group1.projectbackend.dto.activitylog.CreateActivityLogDto;
 import org.group1.projectbackend.entity.ActivityLog;
-import org.group1.projectbackend.entity.Document;
+import org.group1.projectbackend.entity.SupportTicket;
 import org.group1.projectbackend.entity.User;
 import org.springframework.stereotype.Component;
 
@@ -20,12 +20,12 @@ public class ActivityLogMapper {
                 activityLog.getActivityType(),
                 activityLog.getDescription(),
                 activityLog.getUser() != null ? activityLog.getUser().getId() : null,
-                activityLog.getDocument() != null ? activityLog.getDocument().getId() : null,
+                activityLog.getSupportTicket() != null ? activityLog.getSupportTicket().getId() : null,
                 activityLog.getCreatedAt()
         );
     }
 
-    public ActivityLog toEntity(CreateActivityLogDto dto, User user, Document document) {
+    public ActivityLog toEntity(CreateActivityLogDto dto, User user, SupportTicket supportTicket) {
         if (dto == null) {
             return null;
         }
@@ -35,7 +35,7 @@ public class ActivityLogMapper {
                 dto.getActivityType(),
                 dto.getDescription(),
                 user,
-                document,
+                supportTicket,
                 null
         );
     }

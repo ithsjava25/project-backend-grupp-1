@@ -35,8 +35,8 @@ public class ActivityLog {
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "document_id")
-    private Document document;
+    @JoinColumn(name = "support_ticket_id")
+    private SupportTicket supportTicket;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;

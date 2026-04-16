@@ -8,10 +8,10 @@ import java.util.List;
 
 public interface ActivityLogRepository extends JpaRepository<ActivityLog, Long> {
 
-    // Returns all activity logs for a specific document, sorted by the given sort order
-    List<ActivityLog> findByDocumentId(Long documentId, Sort sort);
+    // Returns all activity logs for a specific support ticket
+    List<ActivityLog> findBySupportTicketId(Long supportTicketId, Sort sort);
 
-    // Returns all activity logs for a specific user, sorted by the given sort order
+    // Returns all activity logs for a specific user
     List<ActivityLog> findByUserId(Long userId, Sort sort);
 
 }
