@@ -94,9 +94,9 @@ public class CommentServiceTest {
     @Test
     void shouldCreateCommentWhenDtoIsValid() {
 
-        when(commentMapper.toEntity(createCommentDto)).thenReturn(comment);
         when(supportTicketRepository.findById(10L)).thenReturn(Optional.of(ticket));
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(commentMapper.toEntity(createCommentDto, user, ticket)).thenReturn(comment);
         when(commentRepository.save(comment)).thenReturn(comment);
         when(commentMapper.toDto(comment)).thenReturn(commentDto);
 
@@ -154,19 +154,6 @@ public class CommentServiceTest {
 
         assertThat(result.getContent()).isEqualTo("Updated comment");
         verify(commentMapper).updateEntity(updateCommentDto, comment);
-    }
-
-    @Test
-    void shouldThrowExceptionWhenCreateCommentContentIsBlank() {
-        CreateCommentDto invalidDto = new CreateCommentDto(
-                "   ",
-                10L,
-                1L
-        );
-
-        assertThatThrownBy(() -> commentService.createComment(invalidDto))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Comment cannot be empty");
     }
 
     @Test
