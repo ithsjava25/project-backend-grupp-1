@@ -32,6 +32,7 @@ class CreateTicketRequestValidationTest {
     @Test
     void shouldFailValidationWhenPriorityIsMissing() {
         CreateTicketRequest request = new CreateTicketRequest(
+                1L,
                 "Broken VPN access",
                 "Cannot connect to the company VPN from home.",
                 null
@@ -48,6 +49,7 @@ class CreateTicketRequestValidationTest {
     @Test
     void shouldPassValidationWhenPriorityIsProvided() {
         CreateTicketRequest request = new CreateTicketRequest(
+                1L,
                 "Broken VPN access",
                 "Cannot connect to the company VPN from home.",
                 TicketPriority.HIGH

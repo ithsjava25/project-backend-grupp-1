@@ -1,8 +1,12 @@
 package org.group1.projectbackend.service.impl;
 
+import org.group1.projectbackend.dto.ticket.CreateTicketRequest;
+import org.group1.projectbackend.dto.ticket.TicketResponse;
+import org.group1.projectbackend.dto.ticket.UpdateTicketStatusRequest;
 import org.group1.projectbackend.entity.SupportTicket;
 import org.group1.projectbackend.entity.User;
-import org.group1.projectbackend.entity.enums.TicketStatus;
+import org.group1.projectbackend.exception.ResourceNotFoundException;
+import org.group1.projectbackend.mapper.SupportTicketMapper;
 import org.group1.projectbackend.repository.SupportTicketRepository;
 import org.group1.projectbackend.repository.UserRepository;
 import org.group1.projectbackend.service.SupportTicketService;
@@ -22,32 +26,35 @@ public class SupportTicketServiceImpl implements SupportTicketService {
     }
 
     @Override
-    public SupportTicket createTicket(Long userId, String title, String description) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+    public TicketResponse createTicket(CreateTicketRequest request) {
+        User user = userRepository.findById(request.userId())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + request.userId()));
 
         SupportTicket ticket = SupportTicket.builder()
-                .title(title)
-                .description(description)
+                .title(request.title())
+                .description(request.description())
+                .priority(request.priority())
                 .createdBy(user)
                 .build();
 
-        return supportTicketRepository.save(ticket);
+        SupportTicket savedTicket = supportTicketRepository.save(ticket);
+        return SupportTicketMapper.toResponse(savedTicket);
     }
 
     @Override
-    public SupportTicket updateStatus(Long ticketId, String status) {
+    public TicketResponse updateStatus(Long ticketId, UpdateTicketStatusRequest request) {
         SupportTicket ticket = supportTicketRepository.findById(ticketId)
-                .orElseThrow(() -> new RuntimeException("Ticket not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Ticket not found with id: " + ticketId));
+        ticket.setStatus(request.status());
 
-        TicketStatus ticketStatus = TicketStatus.valueOf(status);
-        ticket.setStatus(ticketStatus);
-
-        return supportTicketRepository.save(ticket);
+        SupportTicket updatedTicket = supportTicketRepository.save(ticket);
+        return SupportTicketMapper.toResponse(updatedTicket);
     }
 
     @Override
-    public List<SupportTicket> getTicketsForUser(Long userId) {
-        return supportTicketRepository.findByCreatedById(userId);
+    public List<TicketResponse> getTicketsForUser(Long userId) {
+        userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+        return SupportTicketMapper.toResponseList(supportTicketRepository.findByCreatedById(userId));
     }
 }
