@@ -2,6 +2,10 @@ package org.group1.projectbackend.service;
 
 import java.util.List;
 
+import org.group1.projectbackend.dto.activitylog.CreateActivityLogDto;
+import org.group1.projectbackend.entity.SupportTicket;
+import org.group1.projectbackend.entity.User;
+import org.group1.projectbackend.entity.enums.ActivityType;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.group1.projectbackend.entity.Comment;
@@ -20,31 +24,39 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final CommentMapper commentMapper;
     private final UserRepository userRepository;
+    private final ActivityLogService activityLogService;
 
-    public CommentService(CommentRepository commentRepository, CommentMapper commentMapper, SupportTicketRepository supportTicketRepository, UserRepository userRepository) {
+    public CommentService(CommentRepository commentRepository, CommentMapper commentMapper, SupportTicketRepository supportTicketRepository, UserRepository userRepository, ActivityLogService activityLogService) {
         this.commentRepository = commentRepository;
         this.commentMapper = commentMapper;
         this.supportTicketRepository = supportTicketRepository;
         this.userRepository = userRepository;
+        this.activityLogService = activityLogService;
     }
 
     // Create comment
     public CommentDto createComment(CreateCommentDto dto) {
-        String content = dto.getContent();
-        if (content == null || content.isBlank()) {
-            throw new IllegalArgumentException("Comment cannot be empty");
-        }
-        Comment comment = commentMapper.toEntity(dto);
+        User user = userRepository.findById(dto.getUserId())
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + dto.getUserId()));
 
-        comment.setTicket(supportTicketRepository.findById(dto.getSupportTicketId())
-                        .orElseThrow(() -> new RuntimeException("Support ticket not found with id: " + dto.getSupportTicketId()))
-        );
+        SupportTicket ticket = supportTicketRepository.findById(dto.getSupportTicketId())
+                .orElseThrow(() -> new RuntimeException("Support ticket not found with id: " + dto.getSupportTicketId()));
 
-        comment.setUser(userRepository.findById(dto.getUserId())
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + dto.getUserId()))
-        );
-
+        Comment comment = commentMapper.toEntity(dto, user, ticket);
         Comment savedComment = commentRepository.save(comment);
+
+        try {
+            CreateActivityLogDto logDto = new CreateActivityLogDto(
+                    ActivityType.COMMENT_CREATED,
+                    "Comment created for ticket id: " + ticket.getId(),
+                    user.getId(),
+                    ticket.getId()
+            );
+            activityLogService.createActivityLog(logDto);
+        } catch (Exception e) {
+            System.err.println("Failed to create activity log: " + e.getMessage());
+        }
+
         return commentMapper.toDto(savedComment);
     }
 
@@ -74,18 +86,35 @@ public class CommentService {
         Comment comment = commentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Comment not found with id: " + id));
         commentRepository.delete(comment);
+
+        CreateActivityLogDto logDto = new CreateActivityLogDto(
+                ActivityType.COMMENT_DELETED,
+                "Comment deleted with id: " + comment.getId(),
+                comment.getUser().getId(),
+                comment.getTicket().getId()
+        );
+
+        activityLogService.createActivityLog(logDto);
     }
 
     // Update comment
     public CommentDto updateComment(Long id, UpdateCommentDto dto) {
-        String content = dto.getContent();
         Comment existingComment = commentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Comment not found with id: " + id));
-        if (content == null || content.isBlank()) {
-            throw new IllegalArgumentException("Comment cannot be empty");
-        }
+
         commentMapper.updateEntity(dto, existingComment);
         Comment updatedComment = commentRepository.save(existingComment);
+
+        CreateActivityLogDto logDto = new CreateActivityLogDto(
+                ActivityType.COMMENT_UPDATED,
+                "Comment updated with id: " + existingComment.getId(),
+                existingComment.getUser().getId(),
+                existingComment.getTicket().getId()
+        );
+
+        activityLogService.createActivityLog(logDto);
+
         return commentMapper.toDto(updatedComment);
+
     }
 }

@@ -1,5 +1,6 @@
 package org.group1.projectbackend.controller;
 
+import jakarta.validation.Valid;
 import org.group1.projectbackend.dto.comment.CommentDto;
 import org.group1.projectbackend.dto.comment.CreateCommentDto;
 import org.group1.projectbackend.dto.comment.UpdateCommentDto;
@@ -21,9 +22,9 @@ public class CommentController {
 
     // Create comment
     @PostMapping
-    public ResponseEntity<CommentDto> createComment(@RequestBody CreateCommentDto dto) {
+    public ResponseEntity<CommentDto> createComment(@Valid @RequestBody CreateCommentDto dto) {
         CommentDto createdComment = commentService.createComment(dto);
-        return ResponseEntity.ok(createdComment);
+        return ResponseEntity.status(201).body(createdComment);
     }
 
     // Get comments by ticketId
@@ -42,7 +43,7 @@ public class CommentController {
     @PutMapping("/{id}")
     public ResponseEntity<CommentDto> updateComment(
             @PathVariable Long id,
-            @RequestBody UpdateCommentDto dto
+            @Valid @RequestBody UpdateCommentDto dto
     ) {
         CommentDto updatedComment = commentService.updateComment(id, dto);
         return ResponseEntity.ok(updatedComment);

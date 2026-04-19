@@ -6,9 +6,6 @@ import jakarta.validation.constraints.Size;
 import org.group1.projectbackend.entity.enums.TicketPriority;
 
 public record CreateTicketRequest(
-        @NotNull(message = "User ID is required")
-        Long userId,
-
         @NotBlank(message = "Title cannot be empty")
         @Size(min = 5, max = 100, message = "Title must be between 5 and 100 characters")
         String title,

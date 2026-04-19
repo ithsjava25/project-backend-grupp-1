@@ -17,7 +17,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.LocalDateTime;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.Mockito.verify;
@@ -42,6 +41,9 @@ public class CommentServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private ActivityLogService activityLogService;
 
     @InjectMocks
     private CommentService commentService;
@@ -93,12 +95,12 @@ public class CommentServiceTest {
 
     @Test
     void shouldCreateCommentWhenDtoIsValid() {
-
-        when(commentMapper.toEntity(createCommentDto)).thenReturn(comment);
         when(supportTicketRepository.findById(10L)).thenReturn(Optional.of(ticket));
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(commentMapper.toEntity(createCommentDto, user, ticket)).thenReturn(comment);
         when(commentRepository.save(comment)).thenReturn(comment);
         when(commentMapper.toDto(comment)).thenReturn(commentDto);
+        when(activityLogService.createActivityLog(any())).thenReturn(null);
 
         CommentDto result = commentService.createComment(createCommentDto);
 
@@ -109,7 +111,6 @@ public class CommentServiceTest {
 
     @Test
     void shouldReturnCommentsByTicketId() {
-
         when(supportTicketRepository.findById(10L)).thenReturn(Optional.of(ticket));
         when(commentRepository.findByTicket_Id(eq(10L), any(Sort.class)))
                 .thenReturn(List.of(comment));
@@ -124,8 +125,8 @@ public class CommentServiceTest {
 
     @Test
     void shouldDeleteCommentWhenCommentExists() {
-
         when(commentRepository.findById(100L)).thenReturn(Optional.of(comment));
+        when(activityLogService.createActivityLog(any())).thenReturn(null);
 
         commentService.deleteComment(100L);
 
@@ -134,7 +135,6 @@ public class CommentServiceTest {
 
     @Test
     void shouldUpdateCommentWhenContentIsValid() {
-
         CommentDto updatedCommentDto = new CommentDto(
                 100L,
                 "Updated comment",
@@ -148,6 +148,7 @@ public class CommentServiceTest {
         when(commentRepository.findById(100L)).thenReturn(Optional.of(comment));
         when(commentRepository.save(comment)).thenReturn(comment);
         when(commentMapper.toDto(comment)).thenReturn(updatedCommentDto);
+        when(activityLogService.createActivityLog(any())).thenReturn(null);
 
         CommentDto result =
                 commentService.updateComment(100L, updateCommentDto);
@@ -157,21 +158,7 @@ public class CommentServiceTest {
     }
 
     @Test
-    void shouldThrowExceptionWhenCreateCommentContentIsBlank() {
-        CreateCommentDto invalidDto = new CreateCommentDto(
-                "   ",
-                10L,
-                1L
-        );
-
-        assertThatThrownBy(() -> commentService.createComment(invalidDto))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Comment cannot be empty");
-    }
-
-    @Test
     void shouldThrowExceptionWhenDeletingNonExistingComment() {
-
         when(commentRepository.findById(999L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> commentService.deleteComment(999L))

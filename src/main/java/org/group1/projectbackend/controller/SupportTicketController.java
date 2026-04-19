@@ -1,6 +1,8 @@
 package org.group1.projectbackend.controller;
 
 import jakarta.validation.Valid;
+import java.security.Principal;
+import java.util.List;
 import org.group1.projectbackend.dto.ticket.CreateTicketRequest;
 import org.group1.projectbackend.dto.ticket.TicketResponse;
 import org.group1.projectbackend.dto.ticket.UpdateTicketStatusRequest;
@@ -14,8 +16,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/tickets")
 public class SupportTicketController {
@@ -27,9 +27,18 @@ public class SupportTicketController {
     }
 
     @PostMapping
-    public ResponseEntity<TicketResponse> createTicket(@Valid @RequestBody CreateTicketRequest request) {
-        TicketResponse createdTicket = supportTicketService.createTicket(request);
+    public ResponseEntity<TicketResponse> createTicket(
+            Principal principal,
+            @Valid @RequestBody CreateTicketRequest request
+    ) {
+        TicketResponse createdTicket = supportTicketService.createTicket(principal.getName(), request);
         return ResponseEntity.status(201).body(createdTicket);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<TicketResponse> getTicketById(@PathVariable Long id) {
+        TicketResponse ticket = supportTicketService.getTicketById(id);
+        return ResponseEntity.ok(ticket);
     }
 
     @PutMapping("/{id}/status")

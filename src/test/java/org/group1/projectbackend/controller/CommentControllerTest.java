@@ -57,7 +57,7 @@ class CommentControllerTest {
                                   "userId":1
                                 }
                                 """))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.content").value("Test content"));
     }

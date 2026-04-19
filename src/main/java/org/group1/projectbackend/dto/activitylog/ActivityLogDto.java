@@ -1,22 +1,22 @@
-package org.group1.projectbackend.dto.comment;
+package org.group1.projectbackend.dto.activitylog;
 
 import lombok.*;
+import org.group1.projectbackend.entity.enums.ActivityType;
 
 import java.time.LocalDateTime;
 
+@Builder
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class CommentDto {
+public class ActivityLogDto {
 
     private Long id;
-    private String content;
+    private ActivityType activityType;
+    private String description;
     private Long userId;
-    private String username;
     private Long supportTicketId;
     private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
 
 }
