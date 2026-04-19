@@ -1,17 +1,18 @@
 package org.group1.projectbackend.controller;
 
 import jakarta.validation.Valid;
-import java.util.List;
 import java.security.Principal;
+import java.util.List;
 import org.group1.projectbackend.dto.ticket.CreateTicketRequest;
 import org.group1.projectbackend.dto.ticket.TicketResponse;
 import org.group1.projectbackend.dto.ticket.UpdateTicketStatusRequest;
 import org.group1.projectbackend.service.SupportTicketService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -26,32 +27,32 @@ public class SupportTicketController {
     }
 
     @PostMapping
-    public TicketResponse createTicket(
+    public ResponseEntity<TicketResponse> createTicket(
             Principal principal,
             @Valid @RequestBody CreateTicketRequest request
     ) {
-        if (principal == null) {
-            throw new IllegalStateException("Authenticated principal is required");
-        }
-
-        return supportTicketService.createTicket(principal.getName(), request);
+        TicketResponse createdTicket = supportTicketService.createTicket(principal.getName(), request);
+        return ResponseEntity.status(201).body(createdTicket);
     }
 
     @GetMapping("/{id}")
-    public TicketResponse getTicketById(@PathVariable Long id) {
-        return supportTicketService.getTicketById(id);
+    public ResponseEntity<TicketResponse> getTicketById(@PathVariable Long id) {
+        TicketResponse ticket = supportTicketService.getTicketById(id);
+        return ResponseEntity.ok(ticket);
     }
 
     @PutMapping("/{id}/status")
-    public TicketResponse updateTicketStatus(
+    public ResponseEntity<TicketResponse> updateTicketStatus(
             @PathVariable Long id,
             @Valid @RequestBody UpdateTicketStatusRequest request
     ) {
-        return supportTicketService.updateStatus(id, request);
+        TicketResponse updatedTicket = supportTicketService.updateStatus(id, request);
+        return ResponseEntity.ok(updatedTicket);
     }
 
     @GetMapping("/user/{userId}")
-    public List<TicketResponse> getTicketsForUser(@PathVariable Long userId) {
-        return supportTicketService.getTicketsForUser(userId);
+    public ResponseEntity<List<TicketResponse>> getTicketsForUser(@PathVariable Long userId) {
+        List<TicketResponse> tickets = supportTicketService.getTicketsForUser(userId);
+        return ResponseEntity.ok(tickets);
     }
 }

@@ -29,14 +29,7 @@ public class SupportTicketServiceImpl implements SupportTicketService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with username: " + username));
 
-        SupportTicket ticket = SupportTicket.builder()
-                .title(request.title())
-                .description(request.description())
-                .priority(request.priority())
-                .createdBy(user)
-                .build();
-
-        return SupportTicketMapper.toResponse(supportTicketRepository.save(ticket));
+        return saveTicket(request, user);
     }
 
     @Override
@@ -60,5 +53,16 @@ public class SupportTicketServiceImpl implements SupportTicketService {
     @Override
     public List<TicketResponse> getTicketsForUser(Long userId) {
         return SupportTicketMapper.toResponseList(supportTicketRepository.findByCreatedById(userId));
+    }
+
+    private TicketResponse saveTicket(CreateTicketRequest request, User user) {
+        SupportTicket ticket = SupportTicket.builder()
+                .title(request.title())
+                .description(request.description())
+                .priority(request.priority())
+                .createdBy(user)
+                .build();
+
+        return SupportTicketMapper.toResponse(supportTicketRepository.save(ticket));
     }
 }

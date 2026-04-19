@@ -69,7 +69,7 @@ class SupportTicketControllerTest {
                                   "priority": "HIGH"
                                 }
                                 """))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(10))
                 .andExpect(jsonPath("$.title").value("VPN access issue"));
     }
