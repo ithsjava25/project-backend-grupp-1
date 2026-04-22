@@ -7,6 +7,7 @@ import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.core.ResponseInputStream;
+import software.amazon.awssdk.core.exception.SdkException;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
@@ -15,7 +16,6 @@ import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
 import software.amazon.awssdk.services.s3.model.HeadObjectResponse;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
-import software.amazon.awssdk.services.s3.model.S3Exception;
 
 @Service
 public class S3ObjectStorageService implements ObjectStorageService {
@@ -38,7 +38,7 @@ public class S3ObjectStorageService implements ObjectStorageService {
                     .build();
 
             s3Client.putObject(request, RequestBody.fromInputStream(inputStream, contentLength));
-        } catch (S3Exception ex) {
+        } catch (SdkException ex) {
             throw new IllegalStateException("Failed to upload object to S3-compatible storage", ex);
         }
     }
@@ -55,7 +55,7 @@ public class S3ObjectStorageService implements ObjectStorageService {
 
             ResponseInputStream<GetObjectResponse> response = s3Client.getObject(request);
             return new InputStreamResource(response);
-        } catch (S3Exception ex) {
+        } catch (SdkException ex) {
             throw new IllegalStateException("Failed to download object from S3-compatible storage", ex);
         }
     }
@@ -69,7 +69,7 @@ public class S3ObjectStorageService implements ObjectStorageService {
                     .build();
 
             s3Client.deleteObject(request);
-        } catch (S3Exception ex) {
+        } catch (SdkException ex) {
             throw new IllegalStateException("Failed to delete object from S3-compatible storage", ex);
         }
     }

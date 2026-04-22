@@ -19,6 +19,8 @@ import org.group1.projectbackend.service.ObjectStorageService;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -105,11 +107,13 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     @Override
+    @Transactional
     public void deleteDocument(Long documentId) {
         Document document = findDocumentById(documentId);
+        String storageKey = document.getStorageKey();
 
-        objectStorageService.delete(document.getStorageKey());
         documentRepository.delete(document);
+        deleteObjectAfterCommit(storageKey);
     }
 
     private Document findDocumentById(Long documentId) {
@@ -147,5 +151,19 @@ public class DocumentServiceImpl implements DocumentService {
         } catch (RuntimeException deleteException) {
             saveException.addSuppressed(deleteException);
         }
+    }
+
+    private void deleteObjectAfterCommit(String storageKey) {
+        if (!TransactionSynchronizationManager.isSynchronizationActive()) {
+            objectStorageService.delete(storageKey);
+            return;
+        }
+
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                objectStorageService.delete(storageKey);
+            }
+        });
     }
 }
