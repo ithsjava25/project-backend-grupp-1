@@ -26,22 +26,30 @@ public class Document {
 
     @NotBlank(message = "File name cannot be empty")
     @Size(max = 255, message = "File name cannot exceed 255 characters")
-    @Column(nullable = false)
+    @Column(nullable = false, length = 255)
     private String fileName;
 
-    @NotBlank(message = "File type cannot be empty")
-    @Column(nullable = false)
-    private String fileType;
+    @NotBlank(message = "Content type cannot be empty")
+    @Size(max = 255, message = "Content type cannot exceed 255 characters")
+    @Column(nullable = false, length = 255)
+    private String contentType;
 
     @Column(nullable = false)
     private Long fileSize;
 
-    @Column(nullable = false)
-    private String filePath;
+    @NotBlank(message = "Storage key cannot be empty")
+    @Size(max = 500, message = "Storage key cannot exceed 500 characters")
+    @Column(nullable = false, length = 500, unique = true)
+    private String storageKey;
+
+    @NotBlank(message = "Bucket cannot be empty")
+    @Size(max = 255, message = "Bucket name cannot exceed 255 characters")
+    @Column(nullable = false, length = 255)
+    private String bucket;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User owner;
+    @JoinColumn(name = "uploaded_by_user_id", nullable = false)
+    private User uploadedBy;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ticket_id", nullable = false)
