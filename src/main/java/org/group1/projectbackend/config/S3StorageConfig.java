@@ -26,7 +26,14 @@ public class S3StorageConfig {
             builder.endpointOverride(URI.create(properties.getEndpoint()));
         }
 
-        if (StringUtils.hasText(properties.getAccessKey()) && StringUtils.hasText(properties.getSecretKey())) {
+        boolean hasAccessKey = StringUtils.hasText(properties.getAccessKey());
+        boolean hasSecretKey = StringUtils.hasText(properties.getSecretKey());
+
+        if (hasAccessKey != hasSecretKey) {
+            throw new IllegalStateException("Both storage.s3.access-key and storage.s3.secret-key must be set together, or neither must be set.");
+        }
+
+        if (hasAccessKey) {
             builder.credentialsProvider(StaticCredentialsProvider.create(
                     AwsBasicCredentials.create(properties.getAccessKey(), properties.getSecretKey())
             ));

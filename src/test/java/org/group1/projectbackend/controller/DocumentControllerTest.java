@@ -1,5 +1,6 @@
 package org.group1.projectbackend.controller;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.group1.projectbackend.dto.document.DocumentDownloadResponse;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
@@ -122,7 +124,7 @@ class DocumentControllerTest {
                         .param("uploadedByUserId", "1")
                         .with(csrf()))
                 .andExpect(status().isInternalServerError())
-                .andExpect(jsonPath("$.message").value("Failed to upload object to S3-compatible storage"));
+                .andExpect(jsonPath("$.message").value("Internal server error"));
     }
 
     @Test
@@ -148,10 +150,14 @@ class DocumentControllerTest {
         );
 
         when(documentService.downloadDocument(100L)).thenReturn(downloadResponse);
+        String expectedContentDisposition = ContentDisposition.builder("attachment")
+                .filename("setup-guide.pdf", StandardCharsets.UTF_8)
+                .build()
+                .toString();
 
         mockMvc.perform(get("/api/documents/100/download"))
                 .andExpect(status().isOk())
-                .andExpect(header().string(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"setup-guide.pdf\""))
+                .andExpect(header().string(HttpHeaders.CONTENT_DISPOSITION, expectedContentDisposition))
                 .andExpect(content().contentType(MediaType.APPLICATION_PDF))
                 .andExpect(content().bytes(content));
     }

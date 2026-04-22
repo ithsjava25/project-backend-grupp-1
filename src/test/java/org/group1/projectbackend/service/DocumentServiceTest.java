@@ -21,9 +21,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.mock.web.MockMultipartFile;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -113,6 +115,28 @@ class DocumentServiceTest {
     }
 
     @Test
+    void shouldDeleteUploadedObjectWhenDocumentSaveFails() {
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "guide.pdf",
+                "application/pdf",
+                "content".getBytes()
+        );
+
+        when(supportTicketRepository.findById(10L)).thenReturn(Optional.of(ticket));
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(s3StorageProperties.getBucket()).thenReturn("project-documents");
+        when(documentRepository.save(any(Document.class))).thenThrow(new IllegalStateException("Database save failed"));
+
+        assertThatThrownBy(() -> documentService.uploadDocument(10L, 1L, file))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("Database save failed");
+
+        verify(objectStorageService).upload(anyString(), anyString(), anyLong(), any());
+        verify(objectStorageService).delete(anyString());
+    }
+
+    @Test
     void shouldListDocumentsForTicket() {
         when(supportTicketRepository.existsById(10L)).thenReturn(true);
         when(documentRepository.findByTicketIdOrderByCreatedAtAsc(10L)).thenReturn(List.of(document));
@@ -128,7 +152,8 @@ class DocumentServiceTest {
     @Test
     void shouldDownloadDocument() throws Exception {
         when(documentRepository.findById(100L)).thenReturn(Optional.of(document));
-        when(objectStorageService.download("tickets/10/test-guide.pdf")).thenReturn("content".getBytes());
+        when(objectStorageService.download("tickets/10/test-guide.pdf"))
+                .thenReturn(new ByteArrayResource("content".getBytes()));
 
         DocumentDownloadResponse response = documentService.downloadDocument(100L);
 

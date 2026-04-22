@@ -1,10 +1,12 @@
 package org.group1.projectbackend.controller;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import org.group1.projectbackend.dto.document.DocumentDownloadResponse;
 import org.group1.projectbackend.dto.document.DocumentResponse;
 import org.group1.projectbackend.service.DocumentService;
 import org.springframework.core.io.Resource;
+import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -44,10 +46,13 @@ public class DocumentController {
     @GetMapping("/documents/{documentId}/download")
     public ResponseEntity<Resource> downloadDocument(@PathVariable Long documentId) {
         DocumentDownloadResponse download = documentService.downloadDocument(documentId);
+        ContentDisposition contentDisposition = ContentDisposition.builder("attachment")
+                .filename(download.fileName(), StandardCharsets.UTF_8)
+                .build();
 
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(download.contentType()))
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + download.fileName() + "\"")
+                .header(HttpHeaders.CONTENT_DISPOSITION, contentDisposition.toString())
                 .body(download.resource());
     }
 

@@ -11,6 +11,7 @@ public class S3StorageProperties {
     private String secretKey;
     private String bucket = "project-documents";
     private boolean pathStyleAccessEnabled = true;
+    private long maxDownloadSizeBytes = 10485760L;
 
     public String getEndpoint() {
         return endpoint;
@@ -58,5 +59,13 @@ public class S3StorageProperties {
 
     public void setPathStyleAccessEnabled(boolean pathStyleAccessEnabled) {
         this.pathStyleAccessEnabled = pathStyleAccessEnabled;
+    }
+
+    public long getMaxDownloadSizeBytes() {
+        return maxDownloadSizeBytes;
+    }
+
+    public void setMaxDownloadSizeBytes(long maxDownloadSizeBytes) {
+        this.maxDownloadSizeBytes = maxDownloadSizeBytes;
     }
 }

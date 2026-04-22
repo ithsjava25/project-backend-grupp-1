@@ -16,9 +16,9 @@ import org.group1.projectbackend.repository.SupportTicketRepository;
 import org.group1.projectbackend.repository.UserRepository;
 import org.group1.projectbackend.service.DocumentService;
 import org.group1.projectbackend.service.ObjectStorageService;
-import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -46,6 +46,7 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     @Override
+    @Transactional
     public DocumentResponse uploadDocument(Long ticketId, Long uploadedByUserId, MultipartFile file) {
         SupportTicket ticket = supportTicketRepository.findById(ticketId)
                 .orElseThrow(() -> new ResourceNotFoundException("Ticket not found with id: " + ticketId));
@@ -74,7 +75,12 @@ public class DocumentServiceImpl implements DocumentService {
                 .ticket(ticket)
                 .build();
 
-        return DocumentMapper.toResponse(documentRepository.save(document));
+        try {
+            return DocumentMapper.toResponse(documentRepository.save(document));
+        } catch (RuntimeException ex) {
+            deleteUploadedObjectAfterFailedSave(storageKey, ex);
+            throw ex;
+        }
     }
 
     @Override
@@ -89,12 +95,12 @@ public class DocumentServiceImpl implements DocumentService {
     @Override
     public DocumentDownloadResponse downloadDocument(Long documentId) {
         Document document = findDocumentById(documentId);
-        byte[] content = objectStorageService.download(document.getStorageKey());
+        Resource resource = objectStorageService.download(document.getStorageKey());
 
         return new DocumentDownloadResponse(
                 document.getFileName(),
                 document.getContentType(),
-                new ByteArrayResource(content)
+                resource
         );
     }
 
@@ -133,5 +139,13 @@ public class DocumentServiceImpl implements DocumentService {
 
     private String buildStorageKey(Long ticketId, String fileName) {
         return "tickets/" + ticketId + "/" + UUID.randomUUID() + "-" + fileName;
+    }
+
+    private void deleteUploadedObjectAfterFailedSave(String storageKey, RuntimeException saveException) {
+        try {
+            objectStorageService.delete(storageKey);
+        } catch (RuntimeException deleteException) {
+            saveException.addSuppressed(deleteException);
+        }
     }
 }
