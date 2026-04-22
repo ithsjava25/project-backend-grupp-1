@@ -44,4 +44,30 @@ public class GlobalExceptionHandler {
                         "fieldErrors", fieldErrors
                 ));
     }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Map<String, Object>> handleIllegalArgument(IllegalArgumentException ex) {
+        String message = ex.getMessage() != null ? ex.getMessage() : "Invalid request";
+
+        return ResponseEntity.badRequest()
+                .body(Map.of(
+                        "timestamp", LocalDateTime.now(),
+                        "status", HttpStatus.BAD_REQUEST.value(),
+                        "error", "Bad Request",
+                        "message", message
+                ));
+    }
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<Map<String, Object>> handleIllegalState(IllegalStateException ex) {
+        String message = ex.getMessage() != null ? ex.getMessage() : "Internal server error";
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of(
+                        "timestamp", LocalDateTime.now(),
+                        "status", HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                        "error", "Internal Server Error",
+                        "message", message
+                ));
+    }
 }
