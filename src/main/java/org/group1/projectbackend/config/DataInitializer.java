@@ -24,15 +24,14 @@ public class DataInitializer implements CommandLineRunner {
             return;
         }
 
-        jdbcTemplate.update(
-                """
-                INSERT INTO users (id, username, email, password, full_name, enabled, created_at)
-                VALUES (1, 'user', 'user@example.com', 'password', 'user', true, CURRENT_TIMESTAMP)
-                VALUES (2, 'adamaj01', 'adamaj@example.com', 'password', 'Adam', true, CURRENT_TIMESTAMP)
-                VALUES (3, 'emmtra01', 'emmtra@example.com', 'password', 'Emma', true, CURRENT_TIMESTAMP)
-                VALUES (4, 'erifal01', 'erifal@example.com', 'password', 'Erika', true, CURRENT_TIMESTAMP)
-                VALUES (5, 'johjan01', 'johjan@example.com', 'password', 'Johan', true, CURRENT_TIMESTAMP)
-                """
-        );
+        jdbcTemplate.update("""
+    INSERT INTO users (id, username, email, password, full_name, enabled, created_at)
+    VALUES
+      (1, 'user', 'user@example.com', 'password', 'user', true, CURRENT_TIMESTAMP),
+      (2, 'adamaj01', 'adamaj@example.com', 'password', 'Adam', true, CURRENT_TIMESTAMP),
+      (3, 'emmtra01', 'emmtra@example.com', 'password', 'Emma', true, CURRENT_TIMESTAMP),
+      (4, 'erifa101', 'erifa1@example.com', 'password', 'Erika', true, CURRENT_TIMESTAMP),
+      (5, 'johjan01', 'johjan@example.com', 'password', 'Johan', true, CURRENT_TIMESTAMP)
+""");
     }
 }
