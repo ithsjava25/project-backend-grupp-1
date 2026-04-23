@@ -68,8 +68,6 @@
             <h3>Kommentarer</h3>
 
             <form th:action="@{/tickets/{id}/comments(id=${ticket.id()})}" method="post">
-                <input type="hidden" name="userId" value="1">
-
                 <div>
                     <label for="content">Ny kommentar</label>
                     <textarea id="content" name="content" maxlength="2000" required></textarea>

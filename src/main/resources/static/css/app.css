@@ -38,7 +38,7 @@ body {
         radial-gradient(ellipse at top, #0a0a0f 0%, var(--background-base) 52%, var(--background-deep) 100%),
         linear-gradient(180deg, rgba(94, 106, 210, 0.06), transparent 38rem);
     color: var(--foreground);
-    font-family: Inter, "Geist Sans", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-family: Inter, Geist Sans, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;
     line-height: 1.6;
 }
 
@@ -122,7 +122,7 @@ main {
     border-radius: 999px;
     background: rgba(94, 106, 210, 0.12);
     color: #cdd2ff;
-    font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    font-family: SFMono-Regular, Consolas, "Liberation Mono", monospace;
     font-size: 0.68rem;
     font-weight: 700;
     letter-spacing: 0.16em;
@@ -211,7 +211,7 @@ main > * {
 .eyebrow {
     margin: 0;
     color: #cdd2ff;
-    font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    font-family: SFMono-Regular, Consolas, "Liberation Mono", monospace;
     font-size: 0.72rem;
     font-weight: 700;
     letter-spacing: 0.18em;
@@ -345,7 +345,7 @@ td {
 th {
     background: rgba(255, 255, 255, 0.045);
     color: var(--foreground-muted);
-    font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    font-family: SFMono-Regular, Consolas, "Liberation Mono", monospace;
     font-size: 0.72rem;
     letter-spacing: 0.12em;
     text-transform: uppercase;
@@ -390,7 +390,7 @@ dl {
 
 dt {
     color: var(--foreground-muted);
-    font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    font-family: SFMono-Regular, Consolas, "Liberation Mono", monospace;
     font-size: 0.75rem;
     font-weight: 700;
     letter-spacing: 0.08em;
@@ -462,7 +462,7 @@ textarea {
     border-radius: 999px;
     background: rgba(94, 106, 210, 0.12);
     color: #dce0ff;
-    font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    font-family: SFMono-Regular, Consolas, "Liberation Mono", monospace;
     font-size: 0.72rem;
     font-weight: 700;
     letter-spacing: 0.08em;

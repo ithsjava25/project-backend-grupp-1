@@ -16,20 +16,22 @@
             <p class="lead">Ange titel, beskrivning och prioritet. Efter skapning skickas du direkt till detaljsidan.</p>
         </section>
 
-        <form style="margin-top: 2rem;" th:action="@{/tickets}" method="post">
+        <form style="margin-top: 2rem;" th:action="@{/tickets}" th:object="${createTicketRequest}" method="post">
             <div>
                 <label for="title">Titel</label>
-                <input id="title" name="title" type="text" minlength="5" maxlength="100" required>
+                <input id="title" th:field="*{title}" type="text" minlength="5" maxlength="100" required>
+                <small th:if="${#fields.hasErrors('title')}" th:errors="*{title}">Titel är obligatorisk</small>
             </div>
 
             <div>
                 <label for="description">Beskrivning</label>
-                <textarea id="description" name="description" minlength="10" maxlength="1000" required></textarea>
+                <textarea id="description" th:field="*{description}" minlength="10" maxlength="1000" required></textarea>
+                <small th:if="${#fields.hasErrors('description')}" th:errors="*{description}">Beskrivning är obligatorisk</small>
             </div>
 
             <div>
                 <label for="priority">Prioritet</label>
-                <select id="priority" name="priority" required>
+                <select id="priority" th:field="*{priority}" required>
                     <option value="">Välj prioritet</option>
                     <option th:each="priority : ${priorities}"
                             th:value="${priority}"
@@ -37,6 +39,7 @@
                         HIGH
                     </option>
                 </select>
+                <small th:if="${#fields.hasErrors('priority')}" th:errors="*{priority}">Prioritet är obligatorisk</small>
             </div>
 
             <button type="submit">Skapa ticket</button>

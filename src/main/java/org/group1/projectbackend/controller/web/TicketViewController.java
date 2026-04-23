@@ -1,17 +1,23 @@
 package org.group1.projectbackend.controller.web;
 
+import jakarta.validation.Valid;
 import java.security.Principal;
 import org.group1.projectbackend.dto.comment.CreateCommentDto;
 import org.group1.projectbackend.dto.ticket.CreateTicketRequest;
 import org.group1.projectbackend.dto.ticket.TicketResponse;
 import org.group1.projectbackend.dto.ticket.UpdateTicketStatusRequest;
+import org.group1.projectbackend.entity.User;
 import org.group1.projectbackend.entity.enums.TicketPriority;
 import org.group1.projectbackend.entity.enums.TicketStatus;
+import org.group1.projectbackend.exception.ResourceNotFoundException;
+import org.group1.projectbackend.repository.UserRepository;
 import org.group1.projectbackend.service.CommentService;
 import org.group1.projectbackend.service.SupportTicketService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -21,10 +27,16 @@ public class TicketViewController {
 
     private final SupportTicketService supportTicketService;
     private final CommentService commentService;
+    private final UserRepository userRepository;
 
-    public TicketViewController(SupportTicketService supportTicketService, CommentService commentService) {
+    public TicketViewController(
+            SupportTicketService supportTicketService,
+            CommentService commentService,
+            UserRepository userRepository
+    ) {
         this.supportTicketService = supportTicketService;
         this.commentService = commentService;
+        this.userRepository = userRepository;
     }
 
     @GetMapping("/tickets")
@@ -43,6 +55,7 @@ public class TicketViewController {
 
     @GetMapping("/tickets/new")
     public String showCreateTicketForm(Model model) {
+        model.addAttribute("createTicketRequest", new CreateTicketRequest("", "", null));
         model.addAttribute("priorities", TicketPriority.values());
         return "tickets/new";
     }
@@ -50,11 +63,15 @@ public class TicketViewController {
     @PostMapping("/tickets")
     public String createTicket(
             Principal principal,
-            @RequestParam String title,
-            @RequestParam String description,
-            @RequestParam TicketPriority priority
+            @Valid @ModelAttribute CreateTicketRequest request,
+            BindingResult bindingResult,
+            Model model
     ) {
-        CreateTicketRequest request = new CreateTicketRequest(title, description, priority);
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("priorities", TicketPriority.values());
+            return "tickets/new";
+        }
+
         TicketResponse ticket = supportTicketService.createTicket(principal.getName(), request);
 
         return "redirect:/tickets/" + ticket.id();
@@ -64,12 +81,15 @@ public class TicketViewController {
     public String createComment(
             @PathVariable Long id,
             @RequestParam String content,
-            @RequestParam Long userId
+            Principal principal
     ) {
+        User user = userRepository.findByUsername(principal.getName())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with username: " + principal.getName()));
+
         CreateCommentDto comment = new CreateCommentDto();
         comment.setContent(content);
         comment.setSupportTicketId(id);
-        comment.setUserId(userId);
+        comment.setUserId(user.getId());
 
         commentService.createComment(comment);
 
