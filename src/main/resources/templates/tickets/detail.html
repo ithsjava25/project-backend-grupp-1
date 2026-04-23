@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="sv" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${ticket.title()}">Ticket-detaljer</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+    <header th:replace="~{fragments/layout :: siteHeader}"></header>
+
+    <main>
+        <section class="hero">
+            <p class="eyebrow">Ticket</p>
+            <h2 th:text="${ticket.title()}">Ticket-rubrik</h2>
+            <p class="lead" th:text="${ticket.description()}">Beskrivning</p>
+            <div class="actions">
+                <span class="badge" th:text="${ticket.status()}">OPEN</span>
+                <span class="badge" th:text="${ticket.priority()}">HIGH</span>
+            </div>
+        </section>
+
+        <div class="detail-grid">
+            <dl>
+                <dt>ID</dt>
+                <dd th:text="${ticket.id()}">1</dd>
+
+                <dt>Status</dt>
+                <dd th:text="${ticket.status()}">OPEN</dd>
+
+                <dt>Prioritet</dt>
+                <dd th:text="${ticket.priority()}">HIGH</dd>
+
+                <dt>Skapad</dt>
+                <dd th:text="${ticket.createdAt()}">2026-04-22T12:00</dd>
+
+                <dt>Uppdaterad</dt>
+                <dd th:text="${ticket.updatedAt()}">2026-04-22T12:00</dd>
+
+                <dt>Skapad av</dt>
+                <dd>
+                    <span th:text="${ticket.createdByUsername()}">testuser</span>
+                    <span class="muted" th:text="'(#' + ${ticket.createdById()} + ')'">(#1)</span>
+                </dd>
+            </dl>
+
+            <section>
+                <h3>Uppdatera status</h3>
+                <form th:action="@{/tickets/{id}/status(id=${ticket.id()})}" method="post">
+                    <div>
+                        <label for="status">Ny status</label>
+                        <select id="status" name="status" required>
+                            <option th:each="status : ${statuses}"
+                                    th:value="${status}"
+                                    th:text="${status}"
+                                    th:selected="${status == ticket.status()}">
+                                OPEN
+                            </option>
+                        </select>
+                    </div>
+
+                    <button type="submit">Uppdatera status</button>
+                </form>
+            </section>
+        </div>
+
+        <section>
+            <h3>Kommentarer</h3>
+
+            <form th:action="@{/tickets/{id}/comments(id=${ticket.id()})}" method="post">
+                <div>
+                    <label for="content">Ny kommentar</label>
+                    <textarea id="content" name="content" maxlength="2000" required></textarea>
+                </div>
+
+                <button type="submit">Lägg till kommentar</button>
+            </form>
+
+            <p class="empty-state" th:if="${#lists.isEmpty(comments)}">Det finns inga kommentarer för denna ticket ännu.</p>
+
+            <ul class="comment-list" th:if="${!#lists.isEmpty(comments)}">
+                <li th:each="comment : ${comments}">
+                    <p th:text="${comment.content}">Kommentarens innehåll</p>
+                    <small>
+                        <span th:text="${comment.username}">testuser</span>
+                        <span> - </span>
+                        <span th:text="${comment.createdAt}">2026-04-22T12:00</span>
+                    </small>
+                </li>
+            </ul>
+        </section>
+
+        <a class="back-link" th:href="@{/tickets}">Tillbaka till ticket-listan</a>
+    </main>
+</body>
+</html>

@@ -51,6 +51,11 @@ public class SupportTicketServiceImpl implements SupportTicketService {
     }
 
     @Override
+    public List<TicketResponse> getAllTickets() {
+        return SupportTicketMapper.toResponseList(supportTicketRepository.findAll());
+    }
+
+    @Override
     public List<TicketResponse> getTicketsForUser(Long userId) {
         return SupportTicketMapper.toResponseList(supportTicketRepository.findByCreatedById(userId));
     }
