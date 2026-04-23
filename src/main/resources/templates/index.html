@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="sv" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Backend Group 1</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+    <header th:replace="~{fragments/layout :: siteHeader}"></header>
+
+    <main>
+        <section class="hero">
+            <p class="eyebrow">Spring Boot Ticket System</p>
+            <h2>Intern support, samlad i ett snabbt arbetsflöde.</h2>
+            <p class="lead">
+                En server-renderad demo för att skapa, följa upp och hantera interna ärenden
+                som IT-support, access requests, buggrapporter och HR-frågor.
+            </p>
+            <div class="actions">
+                <a class="button-link" th:href="@{/tickets}">Visa tickets</a>
+                <a class="button-link secondary" th:href="@{/tickets/new}">Skapa ticket</a>
+            </div>
+        </section>
+
+        <section class="panel-grid" aria-label="Projektöversikt">
+            <article class="panel">
+                <strong>DTO-baserat API</strong>
+                <p>Backend-flödet använder service, mapper och tydliga response-objekt för tickets.</p>
+            </article>
+            <article class="panel">
+                <strong>Kommentarer</strong>
+                <p>Ticket-detaljer visar kommentarer och stödjer enkel kommentarsskapning i browsern.</p>
+            </article>
+            <article class="panel">
+                <strong>Dokumentspår</strong>
+                <p>Dokumentmetadata och S3-kompatibel lagring finns för vidare demo och utveckling.</p>
+            </article>
+        </section>
+    </main>
+</body>
+</html>

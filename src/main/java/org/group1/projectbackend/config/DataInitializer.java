@@ -27,7 +27,11 @@ public class DataInitializer implements CommandLineRunner {
         jdbcTemplate.update(
                 """
                 INSERT INTO users (id, username, email, password, full_name, enabled, created_at)
-                VALUES (1, 'testuser', 'testuser@example.com', 'password123', 'Test User', true, CURRENT_TIMESTAMP)
+                VALUES (1, 'user', 'user@example.com', 'password', 'user', true, CURRENT_TIMESTAMP)
+                VALUES (2, 'adamaj01', 'adamaj@example.com', 'password', 'Adam', true, CURRENT_TIMESTAMP)
+                VALUES (3, 'emmtra01', 'emmtra@example.com', 'password', 'Emma', true, CURRENT_TIMESTAMP)
+                VALUES (4, 'erifal01', 'erifal@example.com', 'password', 'Erika', true, CURRENT_TIMESTAMP)
+                VALUES (5, 'johjan01', 'johjan@example.com', 'password', 'Johan', true, CURRENT_TIMESTAMP)
                 """
         );
     }
