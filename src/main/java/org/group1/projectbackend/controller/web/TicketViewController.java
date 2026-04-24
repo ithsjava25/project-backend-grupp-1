@@ -116,15 +116,8 @@ public class TicketViewController {
             RedirectAttributes redirectAttributes
     ) {
         try {
-            System.out.println("uploadDocument endpoint reached");
-            System.out.println("Principal: " + principal);
-            System.out.println("Ticket id: " + id);
-            System.out.println("File original name: " + file.getOriginalFilename());
-            System.out.println("File empty: " + file.isEmpty());
-            System.out.println("File size: " + file.getSize());
-
             User user = userRepository.findByUsername(principal.getName())
-                    .orElseThrow(() -> new ResourceNotFoundException("User not found with username: " + principal.getName()));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with username: " + principal.getName()));
 
             documentService.uploadDocument(id, user.getId(), file);
             redirectAttributes.addFlashAttribute("documentSuccess", "Dokumentet laddades upp.");
