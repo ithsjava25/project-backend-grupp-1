@@ -6,6 +6,7 @@ import org.group1.projectbackend.entity.ActivityLog;
 import org.group1.projectbackend.entity.SupportTicket;
 import org.group1.projectbackend.entity.User;
 import org.group1.projectbackend.entity.enums.ActivityType;
+import org.group1.projectbackend.exception.ResourceNotFoundException;
 import org.group1.projectbackend.mapper.ActivityLogMapper;
 import org.group1.projectbackend.repository.ActivityLogRepository;
 import org.group1.projectbackend.repository.SupportTicketRepository;
@@ -57,9 +58,11 @@ public class ActivityLogServiceTest {
     void setUp() {
         user = new User();
         user.setId(1L);
+        user.setUsername("alice");
 
         supportTicket = new SupportTicket();
         supportTicket.setId(10L);
+        supportTicket.setTitle("VPN access issue");
 
         activityLog = new ActivityLog();
         activityLog.setId(100L);
@@ -71,10 +74,12 @@ public class ActivityLogServiceTest {
 
         activityLogDto = new ActivityLogDto(
                 100L,
+                1L,
+                "alice",
+                10L,
+                "VPN access issue",
                 ActivityType.TICKET_CREATED,
                 "Test activity log",
-                1L,
-                10L,
                 activityLog.getCreatedAt()
         );
 
@@ -99,6 +104,8 @@ public class ActivityLogServiceTest {
         assertThat(result).isNotNull();
         assertThat(result.getDescription()).isEqualTo("Test activity log");
         assertThat(result.getActivityType()).isEqualTo(ActivityType.TICKET_CREATED);
+        assertThat(result.getUsername()).isEqualTo("alice");
+        assertThat(result.getTicketTitle()).isEqualTo("VPN access issue");
         verify(activityLogRepository).save(activityLog);
     }
 
@@ -121,10 +128,12 @@ public class ActivityLogServiceTest {
 
         ActivityLogDto activityLogDtoWithoutSupportTicket = new ActivityLogDto(
                 101L,
+                1L,
+                "alice",
+                null,
+                null,
                 ActivityType.TICKET_CREATED,
                 "Test activity log",
-                1L,
-                null,
                 activityLogWithoutSupportTicket.getCreatedAt()
         );
 
@@ -137,6 +146,8 @@ public class ActivityLogServiceTest {
 
         assertThat(result).isNotNull();
         assertThat(result.getSupportTicketId()).isNull();
+        assertThat(result.getUsername()).isEqualTo("alice");
+        assertThat(result.getTicketTitle()).isNull();
         assertThat(result.getDescription()).isEqualTo("Test activity log");
         verify(activityLogRepository).save(activityLogWithoutSupportTicket);
     }
@@ -150,6 +161,8 @@ public class ActivityLogServiceTest {
 
         assertThat(result).hasSize(1);
         assertThat(result.get(0).getDescription()).isEqualTo("Test activity log");
+        assertThat(result.get(0).getUsername()).isEqualTo("alice");
+        assertThat(result.get(0).getTicketTitle()).isEqualTo("VPN access issue");
         verify(activityLogRepository).findAll();
     }
 
@@ -163,11 +176,14 @@ public class ActivityLogServiceTest {
         assertThat(result).isNotNull();
         assertThat(result.getId()).isEqualTo(100L);
         assertThat(result.getDescription()).isEqualTo("Test activity log");
+        assertThat(result.getUsername()).isEqualTo("alice");
+        assertThat(result.getTicketTitle()).isEqualTo("VPN access issue");
         verify(activityLogRepository).findById(100L);
     }
 
     @Test
     void shouldReturnActivityLogsBySupportTicketId() {
+        when(supportTicketRepository.existsById(10L)).thenReturn(true);
         when(activityLogRepository.findBySupportTicketId(eq(10L), any(Sort.class)))
                 .thenReturn(List.of(activityLog));
         when(activityLogMapper.toDto(activityLog)).thenReturn(activityLogDto);
@@ -178,7 +194,17 @@ public class ActivityLogServiceTest {
         assertThat(result).hasSize(1);
         assertThat(result.get(0).getSupportTicketId()).isEqualTo(10L);
         assertThat(result.get(0).getDescription()).isEqualTo("Test activity log");
+        assertThat(result.get(0).getTicketTitle()).isEqualTo("VPN access issue");
         verify(activityLogRepository).findBySupportTicketId(eq(10L), any(Sort.class));
+    }
+
+    @Test
+    void shouldThrowExceptionWhenSupportTicketDoesNotExistForTicketHistory() {
+        when(supportTicketRepository.existsById(999L)).thenReturn(false);
+
+        assertThatThrownBy(() -> activityLogService.getActivityLogsBySupportTicketId(999L, "desc"))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage("Support ticket not found with id: 999");
     }
 
     @Test
@@ -193,6 +219,7 @@ public class ActivityLogServiceTest {
         assertThat(result).hasSize(1);
         assertThat(result.get(0).getUserId()).isEqualTo(1L);
         assertThat(result.get(0).getDescription()).isEqualTo("Test activity log");
+        assertThat(result.get(0).getUsername()).isEqualTo("alice");
         verify(activityLogRepository).findByUserId(eq(1L), any(Sort.class));
     }
 
@@ -201,7 +228,7 @@ public class ActivityLogServiceTest {
         when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> activityLogService.createActivityLog(createActivityLogDto))
-                .isInstanceOf(RuntimeException.class)
+                .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessage("User not found with id: 1");
     }
 
@@ -211,7 +238,7 @@ public class ActivityLogServiceTest {
         when(supportTicketRepository.findById(10L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> activityLogService.createActivityLog(createActivityLogDto))
-                .isInstanceOf(RuntimeException.class)
+                .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessage("Support ticket not found with id: 10");
     }
 
@@ -220,7 +247,7 @@ public class ActivityLogServiceTest {
         when(activityLogRepository.findById(999L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> activityLogService.getActivityLogById(999L))
-                .isInstanceOf(RuntimeException.class)
+                .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessage("Activity log not found with id: 999");
     }
 }

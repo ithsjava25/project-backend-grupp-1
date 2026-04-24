@@ -91,6 +91,26 @@
         </section>
 
         <section class="section-wide" style="margin-top: 2rem">
+            <h3>Historik</h3>
+
+            <p class="empty-state" th:if="${#lists.isEmpty(activityLogs)}">Det finns ingen aktivitetshistorik för denna ticket ännu.</p>
+
+            <ul class="comment-list activity-log-list" th:if="${!#lists.isEmpty(activityLogs)}">
+                <li th:each="activityLog : ${activityLogs}">
+                    <div class="activity-log-header">
+                        <span class="badge" th:text="${activityLog.activityType}">TICKET_CREATED</span>
+                    </div>
+                    <p th:text="${activityLog.description}">Ticket created</p>
+                    <small class="activity-log-meta">
+                        <span th:if="${activityLog.username}" th:text="${activityLog.username}">alice</span>
+                        <span th:if="${activityLog.username}"> - </span>
+                        <span th:text="${#temporals.format(activityLog.createdAt, 'yyyy-MM-dd HH:mm')}">2026-04-24 12:20</span>
+                    </small>
+                </li>
+            </ul>
+        </section>
+
+        <section class="section-wide" style="margin-top: 2rem">
             <h3>Dokument</h3>
 
             <p class="feedback success" th:if="${documentSuccess}" th:text="${documentSuccess}">Dokumentet laddades upp.</p>

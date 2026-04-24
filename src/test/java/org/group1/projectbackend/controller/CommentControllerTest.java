@@ -1,7 +1,6 @@
 package org.group1.projectbackend.controller;
 
 import org.group1.projectbackend.dto.comment.CommentDto;
-import org.group1.projectbackend.service.CommentService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +24,7 @@ class CommentControllerTest {
     private MockMvc mockMvc;
 
     @MockitoBean
-    private CommentService commentService;
+    private org.group1.projectbackend.service.CommentService commentService;
 
     private CommentDto commentDto;
 

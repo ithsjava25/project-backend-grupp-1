@@ -495,6 +495,23 @@ textarea {
     color: var(--foreground);
 }
 
+.activity-log-list .badge {
+    margin-bottom: 0.75rem;
+}
+
+.activity-log-header {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    margin-bottom: 0.2rem;
+}
+
+.activity-log-meta {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+}
+
 small,
 .muted {
     color: var(--foreground-muted);

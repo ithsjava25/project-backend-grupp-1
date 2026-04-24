@@ -165,7 +165,7 @@ class DocumentControllerTest {
     @Test
     @WithMockUser
     void shouldDeleteDocument() throws Exception {
-        doNothing().when(documentService).deleteDocument(100L);
+        doNothing().when(documentService).deleteDocument(any(), eq(100L));
 
         mockMvc.perform(delete("/api/documents/100")
                         .with(csrf()))

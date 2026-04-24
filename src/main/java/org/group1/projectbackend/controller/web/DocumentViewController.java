@@ -1,5 +1,6 @@
 package org.group1.projectbackend.controller.web;
 
+import java.security.Principal;
 import org.group1.projectbackend.service.DocumentService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -26,10 +27,11 @@ public class DocumentViewController {
     @PostMapping("/documents/{documentId}/delete")
     public String deleteDocument(
             @PathVariable Long documentId,
+            Principal principal,
             RedirectAttributes redirectAttributes
     ) {
         try {
-            documentService.deleteDocument(documentId);
+            documentService.deleteDocument(principal.getName(), documentId);
             redirectAttributes.addFlashAttribute("documentSuccess", "Dokumentet togs bort.");
         } catch (RuntimeException ex) {
             redirectAttributes.addFlashAttribute("documentError", "Dokumentet kunde inte tas bort.");

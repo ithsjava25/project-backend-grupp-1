@@ -15,5 +15,5 @@ public interface DocumentService {
 
     DocumentDownloadResponse downloadDocument(Long documentId);
 
-    void deleteDocument(Long documentId);
+    void deleteDocument(String username, Long documentId);
 }
