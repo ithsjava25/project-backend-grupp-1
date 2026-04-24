@@ -12,6 +12,7 @@ import org.group1.projectbackend.entity.enums.TicketStatus;
 import org.group1.projectbackend.exception.ResourceNotFoundException;
 import org.group1.projectbackend.repository.UserRepository;
 import org.group1.projectbackend.service.CommentService;
+import org.group1.projectbackend.service.DocumentService;
 import org.group1.projectbackend.service.SupportTicketService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -21,21 +22,26 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 public class TicketViewController {
 
     private final SupportTicketService supportTicketService;
     private final CommentService commentService;
+    private final DocumentService documentService;
     private final UserRepository userRepository;
 
     public TicketViewController(
             SupportTicketService supportTicketService,
             CommentService commentService,
+            DocumentService documentService,
             UserRepository userRepository
     ) {
         this.supportTicketService = supportTicketService;
         this.commentService = commentService;
+        this.documentService = documentService;
         this.userRepository = userRepository;
     }
 
@@ -49,6 +55,7 @@ public class TicketViewController {
     public String showTicket(@PathVariable Long id, Model model) {
         model.addAttribute("ticket", supportTicketService.getTicketById(id));
         model.addAttribute("comments", commentService.getCommentsBySupportTicketId(id, "asc"));
+        model.addAttribute("documents", documentService.listDocumentsForTicket(id));
         model.addAttribute("statuses", TicketStatus.values());
         return "tickets/detail";
     }
@@ -94,6 +101,50 @@ public class TicketViewController {
         commentService.createComment(comment);
 
         return "redirect:/tickets/" + id;
+    }
+
+    @PostMapping("/tickets/{id}/documents")
+    public String uploadDocument(
+            @PathVariable Long id,
+            @RequestParam("file") MultipartFile file,
+            Principal principal,
+            RedirectAttributes redirectAttributes
+    ) {
+        try {
+            System.out.println("uploadDocument endpoint reached");
+            System.out.println("Principal: " + principal);
+            System.out.println("Ticket id: " + id);
+            System.out.println("File original name: " + file.getOriginalFilename());
+            System.out.println("File empty: " + file.isEmpty());
+            System.out.println("File size: " + file.getSize());
+
+            User user = userRepository.findByUsername(principal.getName())
+                    .orElseThrow(() -> new ResourceNotFoundException("User not found with username: " + principal.getName()));
+
+            documentService.uploadDocument(id, user.getId(), file);
+            redirectAttributes.addFlashAttribute("documentSuccess", "Dokumentet laddades upp.");
+        } catch (RuntimeException ex) {
+            ex.printStackTrace();
+            redirectAttributes.addFlashAttribute("documentError", "Dokumentet kunde inte laddas upp: " + ex.getMessage());
+        }
+
+        return "redirect:/tickets/" + id;
+    }
+
+    @PostMapping("/tickets/{ticketId}/documents/{documentId}/delete")
+    public String deleteDocument(
+            @PathVariable Long ticketId,
+            @PathVariable Long documentId,
+            RedirectAttributes redirectAttributes
+    ) {
+        try {
+            documentService.deleteDocument(documentId);
+            redirectAttributes.addFlashAttribute("documentSuccess", "Dokumentet togs bort.");
+        } catch (RuntimeException ex) {
+            redirectAttributes.addFlashAttribute("documentError", "Dokumentet kunde inte tas bort.");
+        }
+
+        return "redirect:/tickets/" + ticketId;
     }
 
     @PostMapping("/tickets/{id}/status")

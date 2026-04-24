@@ -86,6 +86,11 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     @Override
+    public List<DocumentResponse> getAllDocuments() {
+        return DocumentMapper.toResponseList(documentRepository.findAll());
+    }
+
+    @Override
     public List<DocumentResponse> listDocumentsForTicket(Long ticketId) {
         if (!supportTicketRepository.existsById(ticketId)) {
             throw new ResourceNotFoundException("Ticket not found with id: " + ticketId);

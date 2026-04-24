@@ -84,3 +84,9 @@ Om appen inte kan nå databasen:
 - kontrollera att port `5432` inte redan används av en annan lokal PostgreSQL-instans
 - kontrollera att dina `DB_*`-miljövariabler matchar värdena i Compose-konfigurationen
 - starta om databasen med `docker compose down` följt av `docker compose up -d`
+
+
+$ docker run -p 9000:9000 -p 9001:9001 \
+-e MINIO_ROOT_USER=minioadmin \
+-e MINIO_ROOT_PASSWORD=minioadmin \
+minio/minio server /data --console-address ":9001"
