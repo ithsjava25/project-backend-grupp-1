@@ -123,10 +123,10 @@ main {
     background: rgba(94, 106, 210, 0.12);
     color: #cdd2ff;
     font-family: SFMono-Regular, Consolas, "Liberation Mono", monospace;
-    font-size: 0.68rem;
+    font-size: 1rem;
     font-weight: 700;
     letter-spacing: 0.16em;
-    padding: 0.28rem 0.55rem;
+    padding: 0.55rem 0.55rem;
     text-transform: uppercase;
 }
 
@@ -212,7 +212,7 @@ main > * {
     margin: 0;
     color: #cdd2ff;
     font-family: SFMono-Regular, Consolas, "Liberation Mono", monospace;
-    font-size: 0.72rem;
+    font-size: 2rem;
     font-weight: 700;
     letter-spacing: 0.18em;
     text-transform: uppercase;
@@ -346,12 +346,13 @@ th {
     background: rgba(255, 255, 255, 0.045);
     color: var(--foreground-muted);
     font-family: SFMono-Regular, Consolas, "Liberation Mono", monospace;
-    font-size: 0.72rem;
+    font-size: 1rem;
     letter-spacing: 0.12em;
     text-transform: uppercase;
 }
 
 td {
+    font-size: 1.2rem;
     color: var(--foreground-subtle);
 }
 
@@ -377,7 +378,7 @@ tbody tr:hover {
     display: grid;
     grid-template-columns: minmax(0, 1.4fr) minmax(18rem, 0.8fr);
     gap: 1rem;
-    margin-top: 1.5rem;
+    margin-top: 2rem;
 }
 
 dl {
@@ -391,7 +392,7 @@ dl {
 dt {
     color: var(--foreground-muted);
     font-family: SFMono-Regular, Consolas, "Liberation Mono", monospace;
-    font-size: 0.75rem;
+    font-size: 1rem;
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -403,7 +404,10 @@ dd {
 }
 
 section {
-    margin-top: 1.25rem;
+    padding: 1.15rem;
+}
+
+section-wide {
     padding: 1.15rem;
 }
 
@@ -463,10 +467,10 @@ textarea {
     background: rgba(94, 106, 210, 0.12);
     color: #dce0ff;
     font-family: SFMono-Regular, Consolas, "Liberation Mono", monospace;
-    font-size: 0.72rem;
+    font-size: 1rem;
     font-weight: 700;
     letter-spacing: 0.08em;
-    padding: 0.28rem 0.55rem;
+    padding: 0.55rem 0.55rem;
     text-transform: uppercase;
 }
 
@@ -502,6 +506,78 @@ small,
     background: rgba(255, 255, 255, 0.028);
     color: var(--foreground-muted);
     padding: 1.25rem;
+}
+
+.feedback {
+    border-radius: 14px;
+    font-weight: 650;
+    margin: 0 0 1rem;
+    padding: 0.85rem 1rem;
+}
+
+.feedback.success {
+    border: 1px solid rgba(63, 185, 80, 0.35);
+    background: rgba(63, 185, 80, 0.10);
+    color: #b7f7c2;
+}
+
+.feedback.error {
+    border: 1px solid rgba(248, 81, 73, 0.35);
+    background: rgba(248, 81, 73, 0.10);
+    color: #ffb8b3;
+}
+
+.document-upload-form {
+    gap: 1rem;
+}
+
+.document-dropzone {
+    display: grid;
+    gap: 0.3rem;
+    border: 1px dashed var(--border-accent);
+    border-radius: 18px;
+    background:
+        radial-gradient(circle at top, rgba(94, 106, 210, 0.14), transparent 65%),
+        rgba(255, 255, 255, 0.028);
+    color: var(--foreground);
+    cursor: pointer;
+    margin-bottom: 0.9rem;
+    padding: 1.2rem;
+    transition: transform 220ms var(--ease-out-expo), border-color 220ms var(--ease-out-expo), background 220ms var(--ease-out-expo), box-shadow 220ms var(--ease-out-expo);
+}
+
+.document-dropzone strong {
+    font-size: 1rem;
+}
+
+.document-dropzone span {
+    color: var(--foreground-muted);
+    font-size: 0.95rem;
+}
+
+.document-dropzone:hover,
+.document-dropzone:focus-visible,
+.document-dropzone.is-dragover {
+    border-color: rgba(94, 106, 210, 0.7);
+    background:
+        radial-gradient(circle at top, rgba(94, 106, 210, 0.22), transparent 65%),
+        rgba(255, 255, 255, 0.05);
+    box-shadow: 0 0 0 1px rgba(94, 106, 210, 0.16), 0 16px 38px rgba(94, 106, 210, 0.10);
+    transform: translateY(-1px);
+}
+
+.document-selection {
+    margin: 0.65rem 0 0;
+    min-height: 1.5rem;
+}
+
+.document-selection.has-file {
+    color: var(--foreground);
+    font-weight: 650;
+}
+
+.document-upload-hint {
+    margin: 0;
 }
 
 .back-link {

@@ -9,6 +9,8 @@ public interface DocumentService {
 
     DocumentResponse uploadDocument(Long ticketId, Long uploadedByUserId, MultipartFile file);
 
+    List<DocumentResponse> getAllDocuments();
+
     List<DocumentResponse> listDocumentsForTicket(Long ticketId);
 
     DocumentDownloadResponse downloadDocument(Long documentId);

@@ -39,7 +39,7 @@
                         <td th:text="${ticket.title()}">Exempelticket</td>
                         <td><span class="badge" th:text="${ticket.status()}">OPEN</span></td>
                         <td><span class="badge" th:text="${ticket.priority()}">HIGH</span></td>
-                        <td th:text="${ticket.createdAt()}">2026-04-22T12:00</td>
+                        <td th:text="${#temporals.format(ticket.createdAt, 'yyyy-MM-dd HH:mm')}">2026-04-22T12:00</td>
                         <td>
                             <a th:href="@{/tickets/{id}(id=${ticket.id()})}">Visa</a>
                         </td>
