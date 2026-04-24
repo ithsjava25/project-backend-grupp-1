@@ -46,7 +46,7 @@ public class CommentServiceTest {
     private ActivityLogService activityLogService;
 
     @InjectMocks
-    private CommentService commentService;
+    private org.group1.projectbackend.service.CommentService commentService;
 
     private Comment comment;
     private CommentDto commentDto;
@@ -152,6 +152,41 @@ public class CommentServiceTest {
 
         CommentDto result =
                 commentService.updateComment(100L, updateCommentDto);
+
+        assertThat(result.getContent()).isEqualTo("Updated comment");
+        verify(commentMapper).updateEntity(updateCommentDto, comment);
+    }
+
+    @Test
+    void shouldDeleteCommentEvenWhenActivityLogFails() {
+        when(commentRepository.findById(100L)).thenReturn(Optional.of(comment));
+        when(activityLogService.createActivityLog(any()))
+                .thenThrow(new RuntimeException("Activity log failed"));
+
+        commentService.deleteComment(100L);
+
+        verify(commentRepository).delete(comment);
+    }
+
+    @Test
+    void shouldUpdateCommentEvenWhenActivityLogFails() {
+        CommentDto updatedCommentDto = new CommentDto(
+                100L,
+                "Updated comment",
+                1L,
+                "Testname",
+                10L,
+                comment.getCreatedAt(),
+                comment.getUpdatedAt()
+        );
+
+        when(commentRepository.findById(100L)).thenReturn(Optional.of(comment));
+        when(commentRepository.save(comment)).thenReturn(comment);
+        when(commentMapper.toDto(comment)).thenReturn(updatedCommentDto);
+        when(activityLogService.createActivityLog(any()))
+                .thenThrow(new RuntimeException("Activity log failed"));
+
+        CommentDto result = commentService.updateComment(100L, updateCommentDto);
 
         assertThat(result.getContent()).isEqualTo("Updated comment");
         verify(commentMapper).updateEntity(updateCommentDto, comment);

@@ -5,6 +5,7 @@ import org.group1.projectbackend.dto.activitylog.CreateActivityLogDto;
 import org.group1.projectbackend.entity.ActivityLog;
 import org.group1.projectbackend.entity.SupportTicket;
 import org.group1.projectbackend.entity.User;
+import org.group1.projectbackend.exception.ResourceNotFoundException;
 import org.group1.projectbackend.mapper.ActivityLogMapper;
 import org.group1.projectbackend.repository.ActivityLogRepository;
 import org.group1.projectbackend.repository.SupportTicketRepository;
@@ -35,12 +36,12 @@ public class ActivityLogService {
 
     public ActivityLogDto createActivityLog(CreateActivityLogDto dto) {
         User user = userRepository.findById(dto.getUserId())
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + dto.getUserId()));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + dto.getUserId()));
 
         SupportTicket supportTicket = null;
         if (dto.getSupportTicketId() != null) {
             supportTicket = supportTicketRepository.findById(dto.getSupportTicketId())
-                    .orElseThrow(() -> new RuntimeException("Support ticket not found with id: " + dto.getSupportTicketId()));
+                    .orElseThrow(() -> new ResourceNotFoundException("Support ticket not found with id: " + dto.getSupportTicketId()));
         }
 
         ActivityLog activityLog = activityLogMapper.toEntity(dto, user, supportTicket);
@@ -58,12 +59,16 @@ public class ActivityLogService {
 
     public ActivityLogDto getActivityLogById(Long id) {
         ActivityLog activityLog = activityLogRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Activity log not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Activity log not found with id: " + id));
 
         return activityLogMapper.toDto(activityLog);
     }
 
     public List<ActivityLogDto> getActivityLogsBySupportTicketId(Long supportTicketId, String sortDirection) {
+        if (!supportTicketRepository.existsById(supportTicketId)) {
+            throw new ResourceNotFoundException("Support ticket not found with id: " + supportTicketId);
+        }
+
         Sort sort = "desc".equalsIgnoreCase(sortDirection)
                 ? Sort.by("createdAt").descending()
                 : Sort.by("createdAt").ascending();

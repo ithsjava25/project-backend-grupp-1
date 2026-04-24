@@ -43,10 +43,11 @@ public class SupportTicketController {
 
     @PutMapping("/{id}/status")
     public ResponseEntity<TicketResponse> updateTicketStatus(
+            Principal principal,
             @PathVariable Long id,
             @Valid @RequestBody UpdateTicketStatusRequest request
     ) {
-        TicketResponse updatedTicket = supportTicketService.updateStatus(id, request);
+        TicketResponse updatedTicket = supportTicketService.updateStatus(principal.getName(), id, request);
         return ResponseEntity.ok(updatedTicket);
     }
 

@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import org.group1.projectbackend.config.S3StorageProperties;
+import org.group1.projectbackend.entity.enums.ActivityType;
 import org.group1.projectbackend.dto.document.DocumentDownloadResponse;
 import org.group1.projectbackend.dto.document.DocumentResponse;
 import org.group1.projectbackend.entity.Document;
@@ -14,6 +15,7 @@ import org.group1.projectbackend.entity.enums.TicketStatus;
 import org.group1.projectbackend.repository.DocumentRepository;
 import org.group1.projectbackend.repository.SupportTicketRepository;
 import org.group1.projectbackend.repository.UserRepository;
+import org.group1.projectbackend.service.ActivityLogService;
 import org.group1.projectbackend.service.impl.DocumentServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,6 +31,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -51,6 +54,9 @@ class DocumentServiceTest {
 
     @Mock
     private S3StorageProperties s3StorageProperties;
+
+    @Mock
+    private ActivityLogService activityLogService;
 
     @InjectMocks
     private DocumentServiceImpl documentService;
@@ -114,6 +120,12 @@ class DocumentServiceTest {
         assertThat(response.ticketId()).isEqualTo(10L);
         assertThat(response.uploadedById()).isEqualTo(1L);
         verify(objectStorageService).upload(anyString(), anyString(), anyLong(), any());
+        verify(activityLogService).createActivityLog(argThat(dto ->
+                dto.getActivityType() == ActivityType.FILE_UPLOADED
+                        && "File uploaded: guide.pdf".equals(dto.getDescription())
+                        && dto.getUserId().equals(1L)
+                        && dto.getSupportTicketId().equals(10L)
+        ));
     }
 
     @Test
@@ -167,12 +179,19 @@ class DocumentServiceTest {
 
     @Test
     void shouldDeleteDocument() {
+        when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(user));
         when(documentRepository.findById(100L)).thenReturn(Optional.of(document));
 
-        documentService.deleteDocument(100L);
+        documentService.deleteDocument("testuser", 100L);
 
         InOrder inOrder = inOrder(documentRepository, objectStorageService);
         inOrder.verify(documentRepository).delete(document);
         inOrder.verify(objectStorageService).delete("tickets/10/test-guide.pdf");
+        verify(activityLogService).createActivityLog(argThat(dto ->
+                dto.getActivityType() == ActivityType.FILE_DELETED
+                        && "File deleted: guide.pdf".equals(dto.getDescription())
+                        && dto.getUserId().equals(1L)
+                        && dto.getSupportTicketId().equals(10L)
+        ));
     }
 }

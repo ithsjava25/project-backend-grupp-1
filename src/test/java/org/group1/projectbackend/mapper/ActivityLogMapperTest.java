@@ -26,9 +26,11 @@ public class ActivityLogMapperTest {
     void toDtoShouldReturnActivityLogDtoWhenActivityLogIsNotNull() {
         User user = new User();
         user.setId(1L);
+        user.setUsername("alice");
 
         SupportTicket ticket = new SupportTicket();
         ticket.setId(10L);
+        ticket.setTitle("VPN access issue");
 
         LocalDateTime now = LocalDateTime.now();
 
@@ -47,7 +49,9 @@ public class ActivityLogMapperTest {
         assertThat(activityLogDto.getActivityType()).isEqualTo(ActivityType.TICKET_CREATED);
         assertThat(activityLogDto.getDescription()).isEqualTo("Test description");
         assertThat(activityLogDto.getUserId()).isEqualTo(1L);
+        assertThat(activityLogDto.getUsername()).isEqualTo("alice");
         assertThat(activityLogDto.getSupportTicketId()).isEqualTo(10L);
+        assertThat(activityLogDto.getTicketTitle()).isEqualTo("VPN access issue");
         assertThat(activityLogDto.getCreatedAt()).isEqualTo(now);
     }
 
@@ -100,6 +104,8 @@ public class ActivityLogMapperTest {
         ActivityLogDto dto = activityLogMapper.toDto(activityLog);
 
         assertThat(dto.getUserId()).isNull();
+        assertThat(dto.getUsername()).isNull();
         assertThat(dto.getSupportTicketId()).isNull();
+        assertThat(dto.getTicketTitle()).isNull();
     }
 }

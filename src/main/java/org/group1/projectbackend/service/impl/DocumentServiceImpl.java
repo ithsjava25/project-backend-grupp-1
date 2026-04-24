@@ -4,16 +4,19 @@ import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 import org.group1.projectbackend.config.S3StorageProperties;
+import org.group1.projectbackend.dto.activitylog.CreateActivityLogDto;
 import org.group1.projectbackend.dto.document.DocumentDownloadResponse;
 import org.group1.projectbackend.dto.document.DocumentResponse;
 import org.group1.projectbackend.entity.Document;
 import org.group1.projectbackend.entity.SupportTicket;
 import org.group1.projectbackend.entity.User;
+import org.group1.projectbackend.entity.enums.ActivityType;
 import org.group1.projectbackend.exception.ResourceNotFoundException;
 import org.group1.projectbackend.mapper.DocumentMapper;
 import org.group1.projectbackend.repository.DocumentRepository;
 import org.group1.projectbackend.repository.SupportTicketRepository;
 import org.group1.projectbackend.repository.UserRepository;
+import org.group1.projectbackend.service.ActivityLogService;
 import org.group1.projectbackend.service.DocumentService;
 import org.group1.projectbackend.service.ObjectStorageService;
 import org.springframework.core.io.Resource;
@@ -32,19 +35,22 @@ public class DocumentServiceImpl implements DocumentService {
     private final UserRepository userRepository;
     private final ObjectStorageService objectStorageService;
     private final S3StorageProperties s3StorageProperties;
+    private final ActivityLogService activityLogService;
 
     public DocumentServiceImpl(
             DocumentRepository documentRepository,
             SupportTicketRepository supportTicketRepository,
             UserRepository userRepository,
             ObjectStorageService objectStorageService,
-            S3StorageProperties s3StorageProperties
+            S3StorageProperties s3StorageProperties,
+            ActivityLogService activityLogService
     ) {
         this.documentRepository = documentRepository;
         this.supportTicketRepository = supportTicketRepository;
         this.userRepository = userRepository;
         this.objectStorageService = objectStorageService;
         this.s3StorageProperties = s3StorageProperties;
+        this.activityLogService = activityLogService;
     }
 
     @Override
@@ -78,7 +84,14 @@ public class DocumentServiceImpl implements DocumentService {
                 .build();
 
         try {
-            return DocumentMapper.toResponse(documentRepository.save(document));
+            Document savedDocument = documentRepository.save(document);
+            logActivitySafely(
+                    ActivityType.FILE_UPLOADED,
+                    "File uploaded: " + savedDocument.getFileName(),
+                    uploadedBy.getId(),
+                    ticket.getId()
+            );
+            return DocumentMapper.toResponse(savedDocument);
         } catch (RuntimeException ex) {
             deleteUploadedObjectAfterFailedSave(storageKey, ex);
             throw ex;
@@ -113,12 +126,20 @@ public class DocumentServiceImpl implements DocumentService {
 
     @Override
     @Transactional
-    public void deleteDocument(Long documentId) {
+    public void deleteDocument(String username, Long documentId) {
+        User deletedBy = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with username: " + username));
         Document document = findDocumentById(documentId);
         String storageKey = document.getStorageKey();
 
         documentRepository.delete(document);
         deleteObjectAfterCommit(storageKey);
+        logActivitySafely(
+                ActivityType.FILE_DELETED,
+                "File deleted: " + document.getFileName(),
+                deletedBy.getId(),
+                document.getTicket().getId()
+        );
     }
 
     private Document findDocumentById(Long documentId) {
@@ -170,5 +191,18 @@ public class DocumentServiceImpl implements DocumentService {
                 objectStorageService.delete(storageKey);
             }
         });
+    }
+
+    private void logActivitySafely(ActivityType activityType, String description, Long userId, Long ticketId) {
+        try {
+            activityLogService.createActivityLog(new CreateActivityLogDto(
+                    activityType,
+                    description,
+                    userId,
+                    ticketId
+            ));
+        } catch (RuntimeException ex) {
+            System.err.println("Failed to create activity log: " + ex.getMessage());
+        }
     }
 }

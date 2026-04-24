@@ -44,7 +44,7 @@ public class ActivityLogController {
     @GetMapping("/ticket/{supportTicketId}")
     public ResponseEntity<List<ActivityLogDto>> getActivityLogsBySupportTicketId(
             @PathVariable Long supportTicketId,
-            @RequestParam(defaultValue = "asc") String sortDirection
+            @RequestParam(defaultValue = "desc") String sortDirection
     ) {
         return ResponseEntity.ok(
                 activityLogService.getActivityLogsBySupportTicketId(supportTicketId, sortDirection)

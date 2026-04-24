@@ -45,17 +45,12 @@ public class CommentService {
         Comment comment = commentMapper.toEntity(dto, user, ticket);
         Comment savedComment = commentRepository.save(comment);
 
-        try {
-            CreateActivityLogDto logDto = new CreateActivityLogDto(
-                    ActivityType.COMMENT_CREATED,
-                    "Comment created for ticket id: " + ticket.getId(),
-                    user.getId(),
-                    ticket.getId()
-            );
-            activityLogService.createActivityLog(logDto);
-        } catch (Exception e) {
-            System.err.println("Failed to create activity log: " + e.getMessage());
-        }
+        logActivitySafely(
+                ActivityType.COMMENT_CREATED,
+                "Comment created for ticket id: " + ticket.getId(),
+                user.getId(),
+                ticket.getId()
+        );
 
         return commentMapper.toDto(savedComment);
     }
@@ -87,14 +82,12 @@ public class CommentService {
                 .orElseThrow(() -> new RuntimeException("Comment not found with id: " + id));
         commentRepository.delete(comment);
 
-        CreateActivityLogDto logDto = new CreateActivityLogDto(
+        logActivitySafely(
                 ActivityType.COMMENT_DELETED,
                 "Comment deleted with id: " + comment.getId(),
                 comment.getUser().getId(),
                 comment.getTicket().getId()
         );
-
-        activityLogService.createActivityLog(logDto);
     }
 
     // Update comment
@@ -105,16 +98,27 @@ public class CommentService {
         commentMapper.updateEntity(dto, existingComment);
         Comment updatedComment = commentRepository.save(existingComment);
 
-        CreateActivityLogDto logDto = new CreateActivityLogDto(
+        logActivitySafely(
                 ActivityType.COMMENT_UPDATED,
                 "Comment updated with id: " + existingComment.getId(),
                 existingComment.getUser().getId(),
                 existingComment.getTicket().getId()
         );
 
-        activityLogService.createActivityLog(logDto);
-
         return commentMapper.toDto(updatedComment);
 
+    }
+
+    private void logActivitySafely(ActivityType activityType, String description, Long userId, Long ticketId) {
+        try {
+            activityLogService.createActivityLog(new CreateActivityLogDto(
+                    activityType,
+                    description,
+                    userId,
+                    ticketId
+            ));
+        } catch (RuntimeException ex) {
+            System.err.println("Failed to create activity log: " + ex.getMessage());
+        }
     }
 }

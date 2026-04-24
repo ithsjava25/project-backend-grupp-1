@@ -10,17 +10,35 @@
     <header th:replace="~{fragments/layout :: siteHeader}"></header>
 
     <main>
-        <section class="hero">
-            <p class="eyebrow">Ticket</p>
-            <h2 th:text="${ticket.title()}">Ticket-rubrik</h2>
-            <p class="lead" th:text="${ticket.description()}">Beskrivning</p>
-            <div class="actions">
-                <span class="badge" th:text="${ticket.status()}">OPEN</span>
-                <span class="badge" th:text="${ticket.priority()}">HIGH</span>
-            </div>
-        </section>
-
         <div class="detail-grid">
+            <section class="hero">
+                <p class="eyebrow">Ticket</p>
+                <h2 th:title="${ticket.title()}"
+                    th:text="${#strings.length(ticket.title()) > 25 ? #strings.substring(ticket.title(), 0, 25) + '...' : ticket.title()}">
+                    Ticket-rubrik
+                </h2>
+                <p class="lead" th:text="${ticket.description()}">Beskrivning</p>
+                <div class="actions">
+                    <span class="badge" th:text="${ticket.status()}">OPEN</span>
+                    <span class="badge" th:text="${ticket.priority()}">HIGH</span>
+                </div>
+            </section>
+
+            <section>
+                <h3>Detaljer</h3>
+                <p class="muted">Snabb överblick över ticket innehåll och aktivitet.</p>
+                <dl>
+                    <dt>Kommentarer</dt>
+                    <dd th:text="${#lists.size(comments)}">0</dd>
+
+                    <dt>Händelser</dt>
+                    <dd th:text="${#lists.size(activityLogs)}">0</dd>
+
+                    <dt>Uppladdade filer</dt>
+                    <dd th:text="${#lists.size(documents)}">0</dd>
+                </dl>
+            </section>
+
             <dl>
                 <dt>ID</dt>
                 <dd th:text="${ticket.id()}">1</dd>
@@ -64,7 +82,7 @@
             </section>
         </div>
 
-        <section class="section-wide" style="margin-top: 2rem">
+        <section class="section-wide">
             <h3>Kommentarer</h3>
 
             <form th:action="@{/tickets/{id}/comments(id=${ticket.id()})}" method="post">
@@ -85,6 +103,26 @@
                         <span th:text="${comment.username}">testuser</span>
                         <span> - </span>
                         <span th:text="${comment.createdAt}">2026-04-22T12:00</span>
+                    </small>
+                </li>
+            </ul>
+        </section>
+
+        <section class="section-wide">
+            <h3>Historik</h3>
+
+            <p class="empty-state" th:if="${#lists.isEmpty(activityLogs)}">Det finns ingen aktivitetshistorik för denna ticket ännu.</p>
+
+            <ul class="comment-list activity-log-list" th:if="${!#lists.isEmpty(activityLogs)}">
+                <li th:each="activityLog : ${activityLogs}">
+                    <div class="activity-log-header">
+                        <span class="badge" th:text="${activityLog.activityType}">TICKET_CREATED</span>
+                    </div>
+                    <p th:text="${activityLog.description}">Ticket created</p>
+                    <small class="activity-log-meta">
+                        <span th:if="${activityLog.username}" th:text="${activityLog.username}">alice</span>
+                        <span th:if="${activityLog.username}"> - </span>
+                        <span th:text="${#temporals.format(activityLog.createdAt, 'yyyy-MM-dd HH:mm')}">2026-04-24 12:20</span>
                     </small>
                 </li>
             </ul>

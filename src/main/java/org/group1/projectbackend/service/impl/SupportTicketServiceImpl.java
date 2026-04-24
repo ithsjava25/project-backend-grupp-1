@@ -1,15 +1,18 @@
 package org.group1.projectbackend.service.impl;
 
 import java.util.List;
+import org.group1.projectbackend.dto.activitylog.CreateActivityLogDto;
 import org.group1.projectbackend.dto.ticket.CreateTicketRequest;
 import org.group1.projectbackend.dto.ticket.TicketResponse;
 import org.group1.projectbackend.dto.ticket.UpdateTicketStatusRequest;
 import org.group1.projectbackend.entity.SupportTicket;
 import org.group1.projectbackend.entity.User;
+import org.group1.projectbackend.entity.enums.ActivityType;
 import org.group1.projectbackend.exception.ResourceNotFoundException;
 import org.group1.projectbackend.mapper.SupportTicketMapper;
 import org.group1.projectbackend.repository.SupportTicketRepository;
 import org.group1.projectbackend.repository.UserRepository;
+import org.group1.projectbackend.service.ActivityLogService;
 import org.group1.projectbackend.service.SupportTicketService;
 import org.springframework.stereotype.Service;
 
@@ -18,10 +21,16 @@ public class SupportTicketServiceImpl implements SupportTicketService {
 
     private final SupportTicketRepository supportTicketRepository;
     private final UserRepository userRepository;
+    private final ActivityLogService activityLogService;
 
-    public SupportTicketServiceImpl(SupportTicketRepository supportTicketRepository, UserRepository userRepository) {
+    public SupportTicketServiceImpl(
+            SupportTicketRepository supportTicketRepository,
+            UserRepository userRepository,
+            ActivityLogService activityLogService
+    ) {
         this.supportTicketRepository = supportTicketRepository;
         this.userRepository = userRepository;
+        this.activityLogService = activityLogService;
     }
 
     @Override
@@ -41,13 +50,24 @@ public class SupportTicketServiceImpl implements SupportTicketService {
     }
 
     @Override
-    public TicketResponse updateStatus(Long ticketId, UpdateTicketStatusRequest request) {
+    public TicketResponse updateStatus(String username, Long ticketId, UpdateTicketStatusRequest request) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with username: " + username));
         SupportTicket ticket = supportTicketRepository.findById(ticketId)
                 .orElseThrow(() -> new ResourceNotFoundException("Ticket not found with id: " + ticketId));
 
+        var previousStatus = ticket.getStatus();
         ticket.setStatus(request.status());
 
-        return SupportTicketMapper.toResponse(supportTicketRepository.save(ticket));
+        SupportTicket savedTicket = supportTicketRepository.save(ticket);
+        logActivitySafely(
+                ActivityType.TICKET_STATUS_CHANGED,
+                "Ticket status changed from " + previousStatus + " to " + savedTicket.getStatus(),
+                user.getId(),
+                savedTicket.getId()
+        );
+
+        return SupportTicketMapper.toResponse(savedTicket);
     }
 
     @Override
@@ -68,6 +88,27 @@ public class SupportTicketServiceImpl implements SupportTicketService {
                 .createdBy(user)
                 .build();
 
-        return SupportTicketMapper.toResponse(supportTicketRepository.save(ticket));
+        SupportTicket savedTicket = supportTicketRepository.save(ticket);
+        logActivitySafely(
+                ActivityType.TICKET_CREATED,
+                "Ticket created",
+                user.getId(),
+                savedTicket.getId()
+        );
+
+        return SupportTicketMapper.toResponse(savedTicket);
+    }
+
+    private void logActivitySafely(ActivityType activityType, String description, Long userId, Long ticketId) {
+        try {
+            activityLogService.createActivityLog(new CreateActivityLogDto(
+                    activityType,
+                    description,
+                    userId,
+                    ticketId
+            ));
+        } catch (RuntimeException ex) {
+            System.err.println("Failed to create activity log: " + ex.getMessage());
+        }
     }
 }

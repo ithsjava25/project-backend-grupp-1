@@ -11,6 +11,7 @@ import org.group1.projectbackend.entity.enums.TicketPriority;
 import org.group1.projectbackend.entity.enums.TicketStatus;
 import org.group1.projectbackend.exception.ResourceNotFoundException;
 import org.group1.projectbackend.repository.UserRepository;
+import org.group1.projectbackend.service.ActivityLogService;
 import org.group1.projectbackend.service.CommentService;
 import org.group1.projectbackend.service.DocumentService;
 import org.group1.projectbackend.service.SupportTicketService;
@@ -29,17 +30,20 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class TicketViewController {
 
     private final SupportTicketService supportTicketService;
+    private final ActivityLogService activityLogService;
     private final CommentService commentService;
     private final DocumentService documentService;
     private final UserRepository userRepository;
 
     public TicketViewController(
             SupportTicketService supportTicketService,
+            ActivityLogService activityLogService,
             CommentService commentService,
             DocumentService documentService,
             UserRepository userRepository
     ) {
         this.supportTicketService = supportTicketService;
+        this.activityLogService = activityLogService;
         this.commentService = commentService;
         this.documentService = documentService;
         this.userRepository = userRepository;
@@ -54,6 +58,7 @@ public class TicketViewController {
     @GetMapping("/tickets/{id}")
     public String showTicket(@PathVariable Long id, Model model) {
         model.addAttribute("ticket", supportTicketService.getTicketById(id));
+        model.addAttribute("activityLogs", activityLogService.getActivityLogsBySupportTicketId(id, "desc"));
         model.addAttribute("comments", commentService.getCommentsBySupportTicketId(id, "asc"));
         model.addAttribute("documents", documentService.listDocumentsForTicket(id));
         model.addAttribute("statuses", TicketStatus.values());
@@ -128,10 +133,11 @@ public class TicketViewController {
     public String deleteDocument(
             @PathVariable Long ticketId,
             @PathVariable Long documentId,
+            Principal principal,
             RedirectAttributes redirectAttributes
     ) {
         try {
-            documentService.deleteDocument(documentId);
+            documentService.deleteDocument(principal.getName(), documentId);
             redirectAttributes.addFlashAttribute("documentSuccess", "Dokumentet togs bort.");
         } catch (RuntimeException ex) {
             redirectAttributes.addFlashAttribute("documentError", "Dokumentet kunde inte tas bort.");
@@ -143,9 +149,10 @@ public class TicketViewController {
     @PostMapping("/tickets/{id}/status")
     public String updateTicketStatus(
             @PathVariable Long id,
-            @RequestParam TicketStatus status
+            @RequestParam TicketStatus status,
+            Principal principal
     ) {
-        supportTicketService.updateStatus(id, new UpdateTicketStatusRequest(status));
+        supportTicketService.updateStatus(principal.getName(), id, new UpdateTicketStatusRequest(status));
 
         return "redirect:/tickets/" + id;
     }

@@ -17,10 +17,12 @@ public class ActivityLogMapper {
 
         return new ActivityLogDto(
                 activityLog.getId(),
+                activityLog.getUser() != null ? activityLog.getUser().getId() : null,
+                activityLog.getUser() != null ? activityLog.getUser().getUsername() : null,
+                activityLog.getSupportTicket() != null ? activityLog.getSupportTicket().getId() : null,
+                activityLog.getSupportTicket() != null ? activityLog.getSupportTicket().getTitle() : null,
                 activityLog.getActivityType(),
                 activityLog.getDescription(),
-                activityLog.getUser() != null ? activityLog.getUser().getId() : null,
-                activityLog.getSupportTicket() != null ? activityLog.getSupportTicket().getId() : null,
                 activityLog.getCreatedAt()
         );
     }
