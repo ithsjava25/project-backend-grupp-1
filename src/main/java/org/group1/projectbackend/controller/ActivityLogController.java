@@ -1,6 +1,7 @@
 package org.group1.projectbackend.controller;
 
 import jakarta.validation.Valid;
+import org.group1.projectbackend.dto.ApiResponse;
 import org.group1.projectbackend.dto.activitylog.ActivityLogDto;
 import org.group1.projectbackend.dto.activitylog.CreateActivityLogDto;
 import org.group1.projectbackend.service.ActivityLogService;
@@ -19,46 +20,67 @@ public class ActivityLogController {
         this.activityLogService = activityLogService;
     }
 
-    // Create activity log
+    // ✅ Create activity log
     @PostMapping
-    public ResponseEntity<ActivityLogDto> createActivityLog(@Valid @RequestBody CreateActivityLogDto dto) {
-        ActivityLogDto createdActivityLog = activityLogService.createActivityLog(dto);
-        return ResponseEntity.status(201).body(createdActivityLog);
+    public ResponseEntity<ApiResponse<ActivityLogDto>> createActivityLog(
+            @Valid @RequestBody CreateActivityLogDto dto) {
+
+        ActivityLogDto created = activityLogService.createActivityLog(dto);
+
+        return ResponseEntity.status(201)
+                .body(new ApiResponse<>("success", created));
     }
 
-    // Get all activity logs
+    // ✅ Get ALL logs
     @GetMapping
-    public ResponseEntity<List<ActivityLogDto>> getAllActivityLogs() {
-        List<ActivityLogDto> activityLogs = activityLogService.getAllActivityLogs();
-        return ResponseEntity.ok(activityLogs);
-    }
+    public ResponseEntity<ApiResponse<List<ActivityLogDto>>> getAllActivityLogs() {
 
-    // Get activity log by id
-    @GetMapping("/{activityLogId}")
-    public ResponseEntity<ActivityLogDto> getActivityLogById(@PathVariable Long activityLogId) {
-        ActivityLogDto activityLog = activityLogService.getActivityLogById(activityLogId);
-        return ResponseEntity.ok(activityLog);
-    }
+        List<ActivityLogDto> logs = activityLogService.getAllActivityLogs();
 
-    // Get activity logs by support ticket id
-    @GetMapping("/ticket/{supportTicketId}")
-    public ResponseEntity<List<ActivityLogDto>> getActivityLogsBySupportTicketId(
-            @PathVariable Long supportTicketId,
-            @RequestParam(defaultValue = "asc") String sortDirection
-    ) {
         return ResponseEntity.ok(
-                activityLogService.getActivityLogsBySupportTicketId(supportTicketId, sortDirection)
+                new ApiResponse<>("success", logs)
         );
     }
 
-    // Get activity logs by user id
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<List<ActivityLogDto>> getActivityLogsByUserId(
-            @PathVariable Long userId,
-            @RequestParam(defaultValue = "asc") String sortDirection
-    ) {
+    // ✅ Get by ID
+    @GetMapping("/{activityLogId}")
+    public ResponseEntity<ApiResponse<ActivityLogDto>> getActivityLogById(
+            @PathVariable Long activityLogId) {
+
+        ActivityLogDto log = activityLogService.getActivityLogById(activityLogId);
+
         return ResponseEntity.ok(
-                activityLogService.getActivityLogsByUserId(userId, sortDirection)
+                new ApiResponse<>("success", log)
+        );
+    }
+
+    // ✅ Get by ticket
+    @GetMapping("/ticket/{supportTicketId}")
+    public ResponseEntity<ApiResponse<List<ActivityLogDto>>> getByTicket(
+            @PathVariable Long supportTicketId,
+            @RequestParam(defaultValue = "asc") String sortDirection) {
+
+        List<ActivityLogDto> logs =
+                activityLogService.getActivityLogsBySupportTicketId(
+                        supportTicketId, sortDirection);
+
+        return ResponseEntity.ok(
+                new ApiResponse<>("success", logs)
+        );
+    }
+
+    // ✅ Get by user
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<ApiResponse<List<ActivityLogDto>>> getByUser(
+            @PathVariable Long userId,
+            @RequestParam(defaultValue = "asc") String sortDirection) {
+
+        List<ActivityLogDto> logs =
+                activityLogService.getActivityLogsByUserId(
+                        userId, sortDirection);
+
+        return ResponseEntity.ok(
+                new ApiResponse<>("success", logs)
         );
     }
 }
