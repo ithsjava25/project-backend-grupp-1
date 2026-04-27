@@ -14,10 +14,14 @@ import org.group1.projectbackend.repository.SupportTicketRepository;
 import org.group1.projectbackend.repository.UserRepository;
 import org.group1.projectbackend.service.ActivityLogService;
 import org.group1.projectbackend.service.SupportTicketService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 @Service
 public class SupportTicketServiceImpl implements SupportTicketService {
+
+    private static final Logger logger = LoggerFactory.getLogger(SupportTicketServiceImpl.class);
 
     private final SupportTicketRepository supportTicketRepository;
     private final UserRepository userRepository;
@@ -108,7 +112,11 @@ public class SupportTicketServiceImpl implements SupportTicketService {
                     ticketId
             ));
         } catch (RuntimeException ex) {
-            System.err.println("Failed to create activity log: " + ex.getMessage());
+            logger.error("Failed to create activity log for ticketId={} userId={} activityType={}",
+                    ticketId,
+                    userId,
+                    activityType,
+                    ex);
         }
     }
 }

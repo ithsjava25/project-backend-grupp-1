@@ -13,6 +13,7 @@ import org.group1.projectbackend.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Sort;
 import java.util.List;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -34,6 +35,7 @@ public class ActivityLogService {
         this.supportTicketRepository = supportTicketRepository;
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public ActivityLogDto createActivityLog(CreateActivityLogDto dto) {
         User user = userRepository.findById(dto.getUserId())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + dto.getUserId()));

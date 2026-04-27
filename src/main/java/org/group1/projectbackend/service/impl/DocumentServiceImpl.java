@@ -19,6 +19,8 @@ import org.group1.projectbackend.repository.UserRepository;
 import org.group1.projectbackend.service.ActivityLogService;
 import org.group1.projectbackend.service.DocumentService;
 import org.group1.projectbackend.service.ObjectStorageService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +31,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class DocumentServiceImpl implements DocumentService {
+
+    private static final Logger logger = LoggerFactory.getLogger(DocumentServiceImpl.class);
 
     private final DocumentRepository documentRepository;
     private final SupportTicketRepository supportTicketRepository;
@@ -202,7 +206,11 @@ public class DocumentServiceImpl implements DocumentService {
                     ticketId
             ));
         } catch (RuntimeException ex) {
-            System.err.println("Failed to create activity log: " + ex.getMessage());
+            logger.error("Failed to create activity log for ticketId={} userId={} activityType={}",
+                    ticketId,
+                    userId,
+                    activityType,
+                    ex);
         }
     }
 }
