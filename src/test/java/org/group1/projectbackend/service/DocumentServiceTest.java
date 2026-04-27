@@ -151,6 +151,34 @@ class DocumentServiceTest {
     }
 
     @Test
+    void shouldUploadDocumentEvenWhenActivityLogFails() {
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "guide.pdf",
+                "application/pdf",
+                "content".getBytes()
+        );
+
+        when(supportTicketRepository.findById(10L)).thenReturn(Optional.of(ticket));
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(s3StorageProperties.getBucket()).thenReturn("project-documents");
+        when(documentRepository.save(any(Document.class))).thenAnswer(invocation -> {
+            Document savedDocument = invocation.getArgument(0);
+            savedDocument.setId(100L);
+            savedDocument.setCreatedAt(LocalDateTime.now());
+            return savedDocument;
+        });
+        when(activityLogService.createActivityLog(any()))
+                .thenThrow(new RuntimeException("Activity log failed"));
+
+        DocumentResponse response = documentService.uploadDocument(10L, 1L, file);
+
+        assertThat(response).isNotNull();
+        assertThat(response.id()).isEqualTo(100L);
+        verify(documentRepository).save(any(Document.class));
+    }
+
+    @Test
     void shouldListDocumentsForTicket() {
         when(supportTicketRepository.existsById(10L)).thenReturn(true);
         when(documentRepository.findByTicketIdOrderByCreatedAtAsc(10L)).thenReturn(List.of(document));
@@ -193,5 +221,18 @@ class DocumentServiceTest {
                         && dto.getUserId().equals(1L)
                         && dto.getSupportTicketId().equals(10L)
         ));
+    }
+
+    @Test
+    void shouldDeleteDocumentEvenWhenActivityLogFails() {
+        when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(user));
+        when(documentRepository.findById(100L)).thenReturn(Optional.of(document));
+        when(activityLogService.createActivityLog(any()))
+                .thenThrow(new RuntimeException("Activity log failed"));
+
+        documentService.deleteDocument("testuser", 100L);
+
+        verify(documentRepository).delete(document);
+        verify(objectStorageService).delete("tickets/10/test-guide.pdf");
     }
 }

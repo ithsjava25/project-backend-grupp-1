@@ -93,6 +93,26 @@ class SupportTicketServiceTest {
     }
 
     @Test
+    void shouldCreateTicketEvenWhenActivityLogFails() {
+        CreateTicketRequest request = new CreateTicketRequest(
+                "VPN access issue",
+                "Cannot connect to the company VPN from home.",
+                TicketPriority.HIGH
+        );
+
+        when(userRepository.findByUsername("alice")).thenReturn(Optional.of(user));
+        when(supportTicketRepository.save(any(SupportTicket.class))).thenReturn(ticket);
+        when(activityLogService.createActivityLog(any()))
+                .thenThrow(new RuntimeException("Activity log failed"));
+
+        TicketResponse response = supportTicketService.createTicket("alice", request);
+
+        assertThat(response).isNotNull();
+        assertThat(response.id()).isEqualTo(10L);
+        verify(supportTicketRepository).save(any(SupportTicket.class));
+    }
+
+    @Test
     void shouldGetTicketById() {
         when(supportTicketRepository.findById(10L)).thenReturn(Optional.of(ticket));
 
@@ -130,6 +150,22 @@ class SupportTicketServiceTest {
                         && dto.getUserId().equals(1L)
                         && dto.getSupportTicketId().equals(10L)
         ));
+    }
+
+    @Test
+    void shouldUpdateTicketStatusEvenWhenActivityLogFails() {
+        UpdateTicketStatusRequest request = new UpdateTicketStatusRequest(TicketStatus.RESOLVED);
+        when(userRepository.findByUsername("alice")).thenReturn(Optional.of(user));
+        when(supportTicketRepository.findById(10L)).thenReturn(Optional.of(ticket));
+        when(supportTicketRepository.save(ticket)).thenReturn(ticket);
+        when(activityLogService.createActivityLog(any()))
+                .thenThrow(new RuntimeException("Activity log failed"));
+
+        TicketResponse response = supportTicketService.updateStatus("alice", 10L, request);
+
+        assertThat(response).isNotNull();
+        assertThat(response.status()).isEqualTo(TicketStatus.RESOLVED);
+        verify(supportTicketRepository).save(ticket);
     }
 
     @Test

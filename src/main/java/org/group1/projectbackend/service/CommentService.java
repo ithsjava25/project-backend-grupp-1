@@ -16,9 +16,13 @@ import org.group1.projectbackend.mapper.CommentMapper;
 import org.group1.projectbackend.repository.CommentRepository;
 import org.group1.projectbackend.repository.SupportTicketRepository;
 import org.group1.projectbackend.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 public class CommentService {
+
+    private static final Logger logger = LoggerFactory.getLogger(CommentService.class);
 
     private final SupportTicketRepository supportTicketRepository;
     private final CommentRepository commentRepository;
@@ -118,7 +122,11 @@ public class CommentService {
                     ticketId
             ));
         } catch (RuntimeException ex) {
-            System.err.println("Failed to create activity log: " + ex.getMessage());
+            logger.error("Failed to create activity log for ticketId={} userId={} activityType={}",
+                    ticketId,
+                    userId,
+                    activityType,
+                    ex);
         }
     }
 }
