@@ -44,15 +44,10 @@ public class ActivityLogController {
             @PathVariable Long supportTicketId,
             @RequestParam(defaultValue = "asc") String sortDirection) {
 
-        List<ActivityLogDto> logs =
+        return ResponseEntity.ok(
                 activityLogService.getActivityLogsBySupportTicketId(
-                        supportTicketId, sortDirection);
-
-        if (logs.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-
-        return ResponseEntity.ok(logs);
+                        supportTicketId, sortDirection)
+        );
     }
 
     @GetMapping("/user/{userId}")
@@ -61,7 +56,8 @@ public class ActivityLogController {
             @RequestParam(defaultValue = "asc") String sortDirection) {
 
         return ResponseEntity.ok(
-                activityLogService.getActivityLogsByUserId(userId, sortDirection)
+                activityLogService.getActivityLogsByUserId(
+                        userId, sortDirection)
         );
     }
 }
