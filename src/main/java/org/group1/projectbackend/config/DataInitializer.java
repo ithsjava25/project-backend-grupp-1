@@ -19,25 +19,25 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     public void run(String... args) {
 
-        // 🔐 Kryptera lösenord
+        // Kryptera lösenord
         String userPassword = passwordEncoder.encode("password123");
         String adminPassword = passwordEncoder.encode("admin123");
 
-        // 👤 USER
+        //  USER
         jdbcTemplate.update("""
             INSERT INTO users (id, username, email, password, full_name, enabled, created_at)
             VALUES (1, 'testuser', 'testuser@example.com', ?, 'Test User', true, CURRENT_TIMESTAMP)
             ON CONFLICT (id) DO NOTHING
         """, userPassword);
 
-        // 👑 ADMIN USER
+        // ADMIN USER
         jdbcTemplate.update("""
             INSERT INTO users (id, username, email, password, full_name, enabled, created_at)
             VALUES (2, 'admin', 'admin@example.com', ?, 'Admin User', true, CURRENT_TIMESTAMP)
             ON CONFLICT (id) DO NOTHING
         """, adminPassword);
 
-        // 🧩 ROLLER
+        //  ROLLER
         jdbcTemplate.update("""
             INSERT INTO roles (id, name)
             VALUES (1, 'ROLE_USER')
@@ -50,14 +50,14 @@ public class DataInitializer implements CommandLineRunner {
             ON CONFLICT (id) DO NOTHING
         """);
 
-        // 🔗 Koppla USER → ROLE_USER
+        //  Koppla USER → ROLE_USER
         jdbcTemplate.update("""
             INSERT INTO user_roles (user_id, role_id)
             VALUES (1, 1)
             ON CONFLICT DO NOTHING
         """);
 
-        // 🔗 Koppla ADMIN → ROLE_ADMIN
+        //  Koppla ADMIN → ROLE_ADMIN
         jdbcTemplate.update("""
             INSERT INTO user_roles (user_id, role_id)
             VALUES (2, 2)

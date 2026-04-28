@@ -20,7 +20,7 @@ public class ActivityLogController {
         this.activityLogService = activityLogService;
     }
 
-    // ✅ Create activity log
+    //  Create activity log
     @PostMapping
     public ResponseEntity<ApiResponse<ActivityLogDto>> createActivityLog(
             @Valid @RequestBody CreateActivityLogDto dto) {
@@ -31,7 +31,7 @@ public class ActivityLogController {
                 .body(new ApiResponse<>("success", created));
     }
 
-    // ✅ Get ALL logs
+    //  Get ALL logs
     @GetMapping
     public ResponseEntity<ApiResponse<List<ActivityLogDto>>> getAllActivityLogs() {
 
@@ -42,7 +42,7 @@ public class ActivityLogController {
         );
     }
 
-    // ✅ Get by ID
+    //  Get by ID
     @GetMapping("/{activityLogId}")
     public ResponseEntity<ApiResponse<ActivityLogDto>> getActivityLogById(
             @PathVariable Long activityLogId) {
@@ -54,7 +54,7 @@ public class ActivityLogController {
         );
     }
 
-    // ✅ Get by ticket
+    //  Get by ticket
     @GetMapping("/ticket/{supportTicketId}")
     public ResponseEntity<ApiResponse<List<ActivityLogDto>>> getByTicket(
             @PathVariable Long supportTicketId,
@@ -69,7 +69,7 @@ public class ActivityLogController {
         );
     }
 
-    // ✅ Get by user
+    //  Get by user
     @GetMapping("/user/{userId}")
     public ResponseEntity<ApiResponse<List<ActivityLogDto>>> getByUser(
             @PathVariable Long userId,
