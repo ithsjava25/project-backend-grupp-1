@@ -1,7 +1,6 @@
 package org.group1.projectbackend.controller;
 
 import jakarta.validation.Valid;
-import org.group1.projectbackend.dto.ApiResponse;
 import org.group1.projectbackend.dto.activitylog.ActivityLogDto;
 import org.group1.projectbackend.dto.activitylog.CreateActivityLogDto;
 import org.group1.projectbackend.service.ActivityLogService;
@@ -20,67 +19,45 @@ public class ActivityLogController {
         this.activityLogService = activityLogService;
     }
 
-    // Create activity log
     @PostMapping
-    public ResponseEntity<ApiResponse<ActivityLogDto>> createActivityLog(
+    public ResponseEntity<ActivityLogDto> createActivityLog(
             @Valid @RequestBody CreateActivityLogDto dto) {
 
-        ActivityLogDto created = activityLogService.createActivityLog(dto);
-
         return ResponseEntity.status(201)
-                .body(new ApiResponse<>("success", created));
+                .body(activityLogService.createActivityLog(dto));
     }
 
-    // Get ALL logs
     @GetMapping
-    public ResponseEntity<ApiResponse<List<ActivityLogDto>>> getAllActivityLogs() {
-
-        List<ActivityLogDto> logs = activityLogService.getAllActivityLogs();
-
-        return ResponseEntity.ok(
-                new ApiResponse<>("success", logs)
-        );
+    public ResponseEntity<List<ActivityLogDto>> getAllActivityLogs() {
+        return ResponseEntity.ok(activityLogService.getAllActivityLogs());
     }
 
-    // Get by ID
     @GetMapping("/{activityLogId}")
-    public ResponseEntity<ApiResponse<ActivityLogDto>> getActivityLogById(
+    public ResponseEntity<ActivityLogDto> getActivityLogById(
             @PathVariable Long activityLogId) {
 
-        ActivityLogDto log = activityLogService.getActivityLogById(activityLogId);
-
-        return ResponseEntity.ok(
-                new ApiResponse<>("success", log)
-        );
+        return ResponseEntity.ok(activityLogService.getActivityLogById(activityLogId));
     }
 
-    // Get by ticket
     @GetMapping("/ticket/{supportTicketId}")
-    public ResponseEntity<ApiResponse<List<ActivityLogDto>>> getByTicket(
+    public ResponseEntity<List<ActivityLogDto>> getByTicket(
             @PathVariable Long supportTicketId,
             @RequestParam(defaultValue = "asc") String sortDirection) {
 
-        List<ActivityLogDto> logs =
-                activityLogService.getActivityLogsBySupportTicketId(
-                        supportTicketId, sortDirection);
-
         return ResponseEntity.ok(
-                new ApiResponse<>("success", logs)
+                activityLogService.getActivityLogsBySupportTicketId(
+                        supportTicketId, sortDirection)
         );
     }
 
-    // Get by user
     @GetMapping("/user/{userId}")
-    public ResponseEntity<ApiResponse<List<ActivityLogDto>>> getByUser(
+    public ResponseEntity<List<ActivityLogDto>> getByUser(
             @PathVariable Long userId,
             @RequestParam(defaultValue = "asc") String sortDirection) {
 
-        List<ActivityLogDto> logs =
-                activityLogService.getActivityLogsByUserId(
-                        userId, sortDirection);
-
         return ResponseEntity.ok(
-                new ApiResponse<>("success", logs)
+                activityLogService.getActivityLogsByUserId(
+                        userId, sortDirection)
         );
     }
 }
