@@ -19,24 +19,21 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
-                .csrf(csrf -> csrf.disable())
-
-                // använd Spring default login
                 .formLogin(form -> form
                         .defaultSuccessUrl("/", true)
                         .permitAll()
                 )
-
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/css/**", "/js/**").permitAll()
+                        .requestMatchers("/", "/login", "/error", "/css/**", "/js/**").permitAll()
                         .requestMatchers("/activitylogs/**").hasRole("ADMIN")
                         .requestMatchers("/comments/**").authenticated()
+                        .requestMatchers("/api/documents/**").authenticated()
                         .requestMatchers("/api/tickets/**").authenticated()
-                        .anyRequest().permitAll()
+                        .requestMatchers("/documents/**").authenticated()
+                        .requestMatchers("/tickets/**").authenticated()
+                        .anyRequest().authenticated()
                 )
-
                 .userDetailsService(userDetailsService)
-
                 .build();
     }
 
