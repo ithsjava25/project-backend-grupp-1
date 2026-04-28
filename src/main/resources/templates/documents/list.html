@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="sv" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dokument</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+    <header th:replace="~{fragments/layout :: siteHeader}"></header>
+
+    <main>
+        <section class="hero">
+            <p class="eyebrow">Dokument</p>
+            <h2>Alla uppladdade filer i systemet.</h2>
+            <p class="lead">
+                En global översikt över dokument metadata. Nedladdning går via backend
+                och vi använder MinIO.
+            </p>
+        </section>
+
+        <!--/*@thymesVar id="documentSuccess" type=""*/-->
+        <p class="feedback success" th:if="${documentSuccess}" th:text="${documentSuccess}">Dokumentet togs bort.</p>
+        <!--/*@thymesVar id="documentError" type=""*/-->
+        <p class="feedback error" th:if="${documentError}" th:text="${documentError}">Dokumentet kunde inte tas bort.</p>
+
+        <p class="empty-state" th:if="${#lists.isEmpty(documents)}">Det finns inga dokument uppladdade ännu.</p>
+
+        <div class="table-wrap" th:if="${!#lists.isEmpty(documents)}">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Filnamn</th>
+                        <th>Content type</th>
+                        <th>Storlek</th>
+                        <th>Skapad</th>
+                        <th>Ticket</th>
+                        <th>Ladda ner</th>
+                        <th>Ta bort</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="document : ${documents}">
+                        <td th:text="${document.fileName()}">guide.pdf</td>
+                        <td th:text="${document.contentType()}">application/pdf</td>
+                        <td th:text="${document.fileSize()}">1024</td>
+                        <td th:text="${#temporals.format(document.createdAt(), 'yyyy-MM-dd HH:mm')}">2026-04-22T12:00</td>
+                        <td>
+                            <a th:href="@{/tickets/{id}(id=${document.ticketId()})}"
+                               th:text="'Ticket #' + ${document.ticketId()}">
+                                Ticket #1
+                            </a>
+                        </td>
+                        <td>
+                            <a th:href="@{/api/documents/{id}/download(id=${document.id()})}">Ladda ner</a>
+                        </td>
+                        <td>
+                            <form th:action="@{/documents/{id}/delete(id=${document.id()})}" method="post">
+                                <button type="submit">Ta bort</button>
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+</body>
+</html>

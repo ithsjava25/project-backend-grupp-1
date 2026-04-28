@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="sv" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${ticket.title()}">Ticket-detaljer</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+    <header th:replace="~{fragments/layout :: siteHeader}"></header>
+
+    <main>
+        <section class="hero">
+            <p class="eyebrow">Ticket</p>
+            <h2 th:text="${ticket.title()}">Ticket-rubrik</h2>
+            <p class="lead" th:text="${ticket.description()}">Beskrivning</p>
+            <div class="actions">
+                <span class="badge" th:text="${ticket.status()}">OPEN</span>
+                <span class="badge" th:text="${ticket.priority()}">HIGH</span>
+            </div>
+        </section>
+
+        <div class="detail-grid">
+            <dl>
+                <dt>ID</dt>
+                <dd th:text="${ticket.id()}">1</dd>
+
+                <dt>Status</dt>
+                <dd th:text="${ticket.status()}">OPEN</dd>
+
+                <dt>Prioritet</dt>
+                <dd th:text="${ticket.priority()}">HIGH</dd>
+
+                <dt>Skapad</dt>
+                <dd th:text="${#temporals.format(ticket.createdAt, 'yyyy-MM-dd HH:mm')}"></dd>
+
+                <dt>Uppdaterad</dt>
+                <dd th:text="${#temporals.format(ticket.updatedAt, 'yyyy-MM-dd HH:mm')}"></dd>
+
+                <dt>Skapad av</dt>
+                <dd>
+                    <span th:text="${ticket.createdByUsername()}">testuser</span>
+                    <span class="muted" th:text="'(#' + ${ticket.createdById()} + ')'">(#1)</span>
+                </dd>
+            </dl>
+
+            <section>
+                <h3>Uppdatera status</h3>
+                <form th:action="@{/tickets/{id}/status(id=${ticket.id()})}" method="post">
+                    <div>
+                        <label for="status">Ny status</label>
+                        <select id="status" name="status" required>
+                            <option th:each="status : ${statuses}"
+                                    th:value="${status}"
+                                    th:text="${status}"
+                                    th:selected="${status == ticket.status()}">
+                                OPEN
+                            </option>
+                        </select>
+                    </div>
+
+                    <button type="submit">Uppdatera status</button>
+                </form>
+            </section>
+        </div>
+
+        <section class="section-wide" style="margin-top: 2rem">
+            <h3>Kommentarer</h3>
+
+            <form th:action="@{/tickets/{id}/comments(id=${ticket.id()})}" method="post">
+                <div>
+                    <label for="content">Ny kommentar</label>
+                    <textarea id="content" name="content" maxlength="2000" required></textarea>
+                </div>
+
+                <button type="submit">Lägg till kommentar</button>
+            </form>
+
+            <p class="empty-state" th:if="${#lists.isEmpty(comments)}">Det finns inga kommentarer för denna ticket ännu.</p>
+
+            <ul class="comment-list" th:if="${!#lists.isEmpty(comments)}">
+                <li th:each="comment : ${comments}">
+                    <p th:text="${comment.content}">Kommentarens innehåll</p>
+                    <small>
+                        <span th:text="${comment.username}">testuser</span>
+                        <span> - </span>
+                        <span th:text="${comment.createdAt}">2026-04-22T12:00</span>
+                    </small>
+                </li>
+            </ul>
+        </section>
+
+        <section class="section-wide" style="margin-top: 2rem">
+            <h3>Dokument</h3>
+
+            <p class="feedback success" th:if="${documentSuccess}" th:text="${documentSuccess}">Dokumentet laddades upp.</p>
+            <p class="feedback error" th:if="${documentError}" th:text="${documentError}">Dokumentet kunde inte hanteras.</p>
+
+            <form class="document-upload-form"
+                  th:action="@{/tickets/{id}/documents(id=${ticket.id()})}"
+                  method="post"
+                  enctype="multipart/form-data"
+                  data-document-upload>
+                <div>
+                    <label for="file">Ladda upp dokument</label>
+                    <div class="document-dropzone"
+                         tabindex="0"
+                         role="button"
+                         aria-controls="file"
+                         aria-describedby="document-upload-selection document-upload-hint"
+                         data-document-dropzone>
+                        <strong>Släpp en fil här</strong>
+                        <span>Eller klicka för att välja fil</span>
+                        <span>Du kan även klistra in en bild med Ctrl+V</span>
+                    </div>
+                    <input id="file" name="file" type="file" required data-document-file-input>
+                    <p class="muted document-selection" id="document-upload-selection" data-document-selection>
+                        Ingen fil vald ännu.
+                    </p>
+                </div>
+
+                <button type="submit">Ladda upp</button>
+            </form>
+
+            <p class="empty-state" th:if="${#lists.isEmpty(documents)}">Det finns inga dokument kopplade till denna ticket ännu.</p>
+
+            <div class="table-wrap" th:if="${!#lists.isEmpty(documents)}">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Filnamn</th>
+                            <th>Content type</th>
+                            <th>Storlek</th>
+                            <th>Skapad</th>
+                            <th>Ladda ner</th>
+                            <th>Ta bort</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="document : ${documents}">
+                            <td th:text="${document.fileName()}">guide.pdf</td>
+                            <td th:text="${document.contentType()}">application/pdf</td>
+                            <td th:text="${document.fileSize()}">1024</td>
+                            <td th:text="${#temporals.format(document.createdAt(), 'yyyy-MM-dd HH:mm')}">2026-04-22T12:00</td>
+                            <td>
+                                <a th:href="@{/api/documents/{id}/download(id=${document.id()})}">Ladda ner</a>
+                            </td>
+                            <td>
+                                <form th:action="@{/tickets/{ticketId}/documents/{documentId}/delete(ticketId=${ticket.id()},documentId=${document.id()})}" method="post">
+                                    <button type="submit">Ta bort</button>
+                                </form>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <a class="back-link" th:href="@{/tickets}">Tillbaka till ticket-listan</a>
+    </main>
+    <script th:src="@{/js/document-upload.js}"></script>
+</body>
+</html>

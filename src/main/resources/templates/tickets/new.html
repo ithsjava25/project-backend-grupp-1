@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="sv" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skapa ticket</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+    <header th:replace="~{fragments/layout :: siteHeader}"></header>
+
+    <main>
+        <section class="hero">
+            <p class="eyebrow">Ny ticket</p>
+            <h2>Skapa ett ärende.</h2>
+            <p class="lead">Ange titel, beskrivning och prioritet. Efter skapning skickas du direkt till detaljsidan.</p>
+        </section>
+
+        <form style="margin-top: 2rem;" th:action="@{/tickets}" th:object="${createTicketRequest}" method="post">
+            <div>
+                <label for="title">Titel</label>
+                <input id="title" th:field="*{title}" type="text" minlength="5" maxlength="100" required>
+                <small th:if="${#fields.hasErrors('title')}" th:errors="*{title}">Titel är obligatorisk</small>
+            </div>
+
+            <div>
+                <label for="description">Beskrivning</label>
+                <textarea id="description" th:field="*{description}" minlength="10" maxlength="1000" required></textarea>
+                <small th:if="${#fields.hasErrors('description')}" th:errors="*{description}">Beskrivning är obligatorisk</small>
+            </div>
+
+            <div>
+                <label for="priority">Prioritet</label>
+                <select id="priority" th:field="*{priority}" required>
+                    <option value="">Välj prioritet</option>
+                    <option th:each="priority : ${priorities}"
+                            th:value="${priority}"
+                            th:text="${priority}">
+                        HIGH
+                    </option>
+                </select>
+                <small th:if="${#fields.hasErrors('priority')}" th:errors="*{priority}">Prioritet är obligatorisk</small>
+            </div>
+
+            <button type="submit">Skapa ticket</button>
+        </form>
+
+        <a class="back-link" th:href="@{/tickets}">Tillbaka till ticket-listan</a>
+    </main>
+</body>
+</html>

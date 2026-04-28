@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="sv" xmlns:th="http://www.thymeleaf.org">
+<body>
+    <header class="site-header" th:fragment="siteHeader">
+        <div class="brand">
+            <span class="brand-mark">Group 1</span>
+            <h1 class="brand-title">Internt ärendehanteringssystem</h1>
+        </div>
+        <nav class="site-nav" aria-label="Huvudnavigation">
+            <a th:href="@{/}">Startsida</a>
+            <a th:href="@{/tickets}">Ticket-lista</a>
+            <a th:href="@{/tickets/new}">Skapa ticket</a>
+            <a th:href="@{/documents}">Dokument</a>
+        </nav>
+    </header>
+</body>
+</html>

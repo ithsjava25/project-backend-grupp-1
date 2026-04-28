@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="sv" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ticket-lista</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+    <header th:replace="~{fragments/layout :: siteHeader}"></header>
+
+    <main>
+        <section class="hero">
+            <p class="eyebrow">Tickets</p>
+            <h2>Alla ärenden i ett tydligt arbetsflöde.</h2>
+            <p class="lead">Följ status, prioritet och skapade ärenden direkt från den server-renderade demon.</p>
+            <div class="actions">
+                <a class="button-link" th:href="@{/tickets/new}">Skapa ticket</a>
+            </div>
+        </section>
+
+        <p class="empty-state" th:if="${#lists.isEmpty(tickets)}">Det finns inga tickets att visa ännu.</p>
+
+        <div class="table-wrap" th:if="${!#lists.isEmpty(tickets)}">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Titel</th>
+                        <th>Status</th>
+                        <th>Prioritet</th>
+                        <th>Skapad</th>
+                        <th>Detaljer</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="ticket : ${tickets}">
+                        <td th:text="${ticket.id()}">1</td>
+                        <td th:text="${ticket.title()}">Exempelticket</td>
+                        <td><span class="badge" th:text="${ticket.status()}">OPEN</span></td>
+                        <td><span class="badge" th:text="${ticket.priority()}">HIGH</span></td>
+                        <td th:text="${#temporals.format(ticket.createdAt, 'yyyy-MM-dd HH:mm')}">2026-04-22T12:00</td>
+                        <td>
+                            <a th:href="@{/tickets/{id}(id=${ticket.id()})}">Visa</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+</body>
+</html>
