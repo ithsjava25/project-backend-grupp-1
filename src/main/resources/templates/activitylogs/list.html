@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="sv" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activity Log</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+    <header th:replace="~{fragments/layout :: siteHeader}"></header>
+
+    <main>
+        <section class="hero">
+            <p class="eyebrow">Activity Log</p>
+            <h2>All historik samlad på ett ställe.</h2>
+            <p class="lead">
+                Filtrera på aktivitetstyp och följ ticket-, kommentar- och dokumenthändelser
+                med senaste ändringen överst.
+            </p>
+        </section>
+
+        <section class="section-wide">
+            <h3>Filtrera loggar</h3>
+            <form method="get" th:action="@{/activitylogs/view}" class="filter-form">
+                <div>
+                    <label for="type">Aktivitetstyp</label>
+                    <select id="type" name="type" th:classappend="${selectedType != null} ? ' is-active-filter'">
+                        <option value="" th:selected="${selectedType == null}">Alla typer</option>
+                        <option th:each="activityType : ${activityTypes}"
+                                th:value="${activityType.name()}"
+                                th:text="${activityType.name()}"
+                                th:selected="${selectedType == activityType}">
+                            TICKET_CREATED
+                        </option>
+                    </select>
+                </div>
+                <div>
+                    <label for="username">Användare</label>
+                    <input id="username"
+                           name="username"
+                           type="text"
+                           th:classappend="${selectedUsername != null and !#strings.isEmpty(selectedUsername)} ? ' is-active-filter'"
+                           th:value="${selectedUsername}"
+                           placeholder="t.ex. alice">
+                </div>
+                <div>
+                    <label for="ticket">Ticket</label>
+                    <input id="ticket"
+                           name="ticket"
+                           type="text"
+                           th:classappend="${selectedTicket != null and !#strings.isEmpty(selectedTicket)} ? ' is-active-filter'"
+                           th:value="${selectedTicket}"
+                           placeholder="Titel eller ticket-id">
+                </div>
+                <div>
+                    <label for="date">Datum</label>
+                    <input id="date"
+                           name="date"
+                           type="date"
+                           th:classappend="${selectedDate != null} ? ' is-active-filter'"
+                           th:value="${selectedDate}">
+                </div>
+                <div class="actions">
+                    <button type="submit">Filtrera</button>
+                    <a class="button-link secondary" th:href="@{/activitylogs/view}">Rensa filter</a>
+                </div>
+            </form>
+        </section>
+
+        <p class="empty-state" th:if="${#lists.isEmpty(activityLogs)}">
+            Det finns inga aktivitetsloggar att visa för det valda filtret.
+        </p>
+
+        <p class="muted"
+           th:if="${selectedType != null or (selectedUsername != null and !#strings.isEmpty(selectedUsername)) or (selectedTicket != null and !#strings.isEmpty(selectedTicket)) or selectedDate != null}">
+            Aktiva filter:
+            <span th:if="${selectedType != null}" th:text="'Typ: ' + ${selectedType}">Typ: FILE_UPLOADED</span>
+            <span th:if="${selectedType != null and ((selectedUsername != null and !#strings.isEmpty(selectedUsername)) or (selectedTicket != null and !#strings.isEmpty(selectedTicket)) or selectedDate != null)}">, </span>
+            <span th:if="${selectedUsername != null and !#strings.isEmpty(selectedUsername)}" th:text="'Användare: ' + ${selectedUsername}">Användare: alice</span>
+            <span th:if="${selectedUsername != null and !#strings.isEmpty(selectedUsername) and ((selectedTicket != null and !#strings.isEmpty(selectedTicket)) or selectedDate != null)}">, </span>
+            <span th:if="${selectedTicket != null and !#strings.isEmpty(selectedTicket)}" th:text="'Ticket: ' + ${selectedTicket}">Ticket: 42</span>
+            <span th:if="${selectedTicket != null and !#strings.isEmpty(selectedTicket) and selectedDate != null}">, </span>
+            <span th:if="${selectedDate != null}" th:text="'Datum: ' + ${selectedDate}">Datum: 2026-04-24</span>
+        </p>
+
+        <p class="muted"
+           th:if="${selectedType == null and (selectedUsername == null or #strings.isEmpty(selectedUsername)) and (selectedTicket == null or #strings.isEmpty(selectedTicket)) and selectedDate == null}">
+            Inga filter aktiva. Visar hela historiken.
+        </p>
+
+        <p class="muted" th:if="${!#lists.isEmpty(activityLogs)}"
+           th:text="${#lists.size(activityLogs) == 1 ? '1 loggrad matchar filtret.' : #lists.size(activityLogs) + ' loggrader matchar filtret.'}">
+            3 loggrader matchar filtret.
+        </p>
+
+        <div class="table-wrap" th:if="${!#lists.isEmpty(activityLogs)}">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Typ</th>
+                        <th>Beskrivning</th>
+                        <th>Användare</th>
+                        <th>Ticket</th>
+                        <th>Skapad</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="activityLog : ${activityLogs}">
+                        <td>
+                            <span class="badge" th:text="${activityLog.activityType}">TICKET_CREATED</span>
+                        </td>
+                        <td th:title="${activityLog.description}"
+                            th:text="${#strings.length(activityLog.description) > 60 ? #strings.substring(activityLog.description, 0, 60) + '...' : activityLog.description}">
+                            Ticket created
+                        </td>
+                        <td th:text="${activityLog.username ?: 'System'}">alice</td>
+                        <td>
+                            <a th:if="${activityLog.supportTicketId != null}"
+                               th:href="@{/tickets/{id}(id=${activityLog.supportTicketId})}"
+                               th:title="${activityLog.ticketTitle != null ? activityLog.ticketTitle : 'Ticket #' + activityLog.supportTicketId}"
+                               th:text="${activityLog.ticketTitle != null ? (#strings.length(activityLog.ticketTitle) > 36 ? #strings.substring(activityLog.ticketTitle, 0, 36) + '...' : activityLog.ticketTitle) : 'Ticket #' + activityLog.supportTicketId}">
+                                VPN access issue
+                            </a>
+                            <span th:if="${activityLog.supportTicketId == null}" class="muted">Ingen ticket</span>
+                        </td>
+                        <td th:text="${#temporals.format(activityLog.createdAt, 'yyyy-MM-dd HH:mm')}">2026-04-24 12:00</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+</body>
+</html>

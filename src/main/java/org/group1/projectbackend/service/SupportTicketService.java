@@ -11,7 +11,7 @@ public interface SupportTicketService {
 
     TicketResponse getTicketById(Long ticketId);
 
-    TicketResponse updateStatus(Long ticketId, UpdateTicketStatusRequest request);
+    TicketResponse updateStatus(String username, Long ticketId, UpdateTicketStatusRequest request);
 
     List<TicketResponse> getAllTickets();
 

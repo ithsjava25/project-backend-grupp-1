@@ -16,9 +16,13 @@ import org.group1.projectbackend.mapper.CommentMapper;
 import org.group1.projectbackend.repository.CommentRepository;
 import org.group1.projectbackend.repository.SupportTicketRepository;
 import org.group1.projectbackend.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 public class CommentService {
+
+    private static final Logger logger = LoggerFactory.getLogger(CommentService.class);
 
     private final SupportTicketRepository supportTicketRepository;
     private final CommentRepository commentRepository;
@@ -45,17 +49,12 @@ public class CommentService {
         Comment comment = commentMapper.toEntity(dto, user, ticket);
         Comment savedComment = commentRepository.save(comment);
 
-        try {
-            CreateActivityLogDto logDto = new CreateActivityLogDto(
-                    ActivityType.COMMENT_CREATED,
-                    "Comment created for ticket id: " + ticket.getId(),
-                    user.getId(),
-                    ticket.getId()
-            );
-            activityLogService.createActivityLog(logDto);
-        } catch (Exception e) {
-            System.err.println("Failed to create activity log: " + e.getMessage());
-        }
+        logActivitySafely(
+                ActivityType.COMMENT_CREATED,
+                "Comment created for ticket id: " + ticket.getId(),
+                user.getId(),
+                ticket.getId()
+        );
 
         return commentMapper.toDto(savedComment);
     }
@@ -87,14 +86,12 @@ public class CommentService {
                 .orElseThrow(() -> new RuntimeException("Comment not found with id: " + id));
         commentRepository.delete(comment);
 
-        CreateActivityLogDto logDto = new CreateActivityLogDto(
+        logActivitySafely(
                 ActivityType.COMMENT_DELETED,
                 "Comment deleted with id: " + comment.getId(),
                 comment.getUser().getId(),
                 comment.getTicket().getId()
         );
-
-        activityLogService.createActivityLog(logDto);
     }
 
     // Update comment
@@ -105,16 +102,31 @@ public class CommentService {
         commentMapper.updateEntity(dto, existingComment);
         Comment updatedComment = commentRepository.save(existingComment);
 
-        CreateActivityLogDto logDto = new CreateActivityLogDto(
+        logActivitySafely(
                 ActivityType.COMMENT_UPDATED,
                 "Comment updated with id: " + existingComment.getId(),
                 existingComment.getUser().getId(),
                 existingComment.getTicket().getId()
         );
 
-        activityLogService.createActivityLog(logDto);
-
         return commentMapper.toDto(updatedComment);
 
+    }
+
+    private void logActivitySafely(ActivityType activityType, String description, Long userId, Long ticketId) {
+        try {
+            activityLogService.createActivityLog(new CreateActivityLogDto(
+                    activityType,
+                    description,
+                    userId,
+                    ticketId
+            ));
+        } catch (RuntimeException ex) {
+            logger.error("Failed to create activity log for ticketId={} userId={} activityType={}",
+                    ticketId,
+                    userId,
+                    activityType,
+                    ex);
+        }
     }
 }

@@ -99,7 +99,7 @@ textarea:focus-visible {
 
 .site-header,
 main {
-    width: min(1120px, calc(100% - 2rem));
+    width: min(1200px, calc(100% - 2rem));
     margin-inline: auto;
 }
 
@@ -140,7 +140,7 @@ main {
 .site-nav {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.55rem;
+    gap: 1rem;
     justify-content: flex-end;
 }
 
@@ -149,7 +149,7 @@ main {
     border-radius: 999px;
     background: rgba(255, 255, 255, 0.045);
     color: var(--foreground-subtle);
-    font-size: 0.88rem;
+    font-size: 1rem;
     font-weight: 600;
     padding: 0.55rem 0.85rem;
     transition: transform 220ms var(--ease-out-expo), border-color 220ms var(--ease-out-expo), background 220ms var(--ease-out-expo), color 220ms var(--ease-out-expo);
@@ -267,7 +267,7 @@ button {
     font: inherit;
     font-size: 0.95rem;
     font-weight: 700;
-    padding: 0.78rem 1rem;
+    padding: 10px 20px;
     transition: transform 220ms var(--ease-out-expo), background 220ms var(--ease-out-expo), box-shadow 220ms var(--ease-out-expo);
 }
 
@@ -327,6 +327,14 @@ dl {
     margin-top: 2rem;
 }
 
+.table-action-form {
+    display: block;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+    padding: 0;
+}
+
 table {
     width: 100%;
     min-width: 720px;
@@ -352,7 +360,7 @@ th {
 }
 
 td {
-    font-size: 1.2rem;
+    font-size: 1rem;
     color: var(--foreground-subtle);
 }
 
@@ -405,10 +413,12 @@ dd {
 
 section {
     padding: 1.15rem;
+
 }
 
-section-wide {
+.section-wide {
     padding: 1.15rem;
+    margin-top: 2rem;
 }
 
 form {
@@ -454,6 +464,12 @@ textarea:focus {
     box-shadow: 0 0 0 4px rgba(94, 106, 210, 0.16);
 }
 
+.is-active-filter {
+    border-color: rgba(94, 106, 210, 0.72);
+    background: rgba(94, 106, 210, 0.10);
+    box-shadow: 0 0 0 1px rgba(94, 106, 210, 0.16);
+}
+
 textarea {
     min-height: 8.5rem;
     resize: vertical;
@@ -470,7 +486,7 @@ textarea {
     font-size: 1rem;
     font-weight: 700;
     letter-spacing: 0.08em;
-    padding: 0.55rem 0.55rem;
+    padding: 5px 10px;
     text-transform: uppercase;
 }
 
@@ -493,6 +509,23 @@ textarea {
 .comment-list p {
     margin: 0 0 0.45rem;
     color: var(--foreground);
+}
+
+.activity-log-list .badge {
+    margin-bottom: 0.75rem;
+}
+
+.activity-log-header {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    margin-bottom: 0.2rem;
+}
+
+.activity-log-meta {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
 }
 
 small,
@@ -592,6 +625,16 @@ main a:hover {
     color: var(--foreground);
 }
 
+.filter-form {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    align-items: end;
+}
+
+.filter-form .actions {
+    align-self: end;
+    margin-top: 0;
+}
+
 @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
@@ -616,6 +659,11 @@ main a:hover {
     .panel-grid,
     .detail-grid {
         grid-template-columns: 1fr;
+    }
+
+    .filter-form {
+        grid-template-columns: 1fr;
+        align-items: stretch;
     }
 
     dl {

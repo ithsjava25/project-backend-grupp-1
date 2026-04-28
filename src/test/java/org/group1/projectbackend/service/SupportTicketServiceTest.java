@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.group1.projectbackend.dto.ticket.CreateTicketRequest;
 import org.group1.projectbackend.dto.ticket.TicketResponse;
 import org.group1.projectbackend.dto.ticket.UpdateTicketStatusRequest;
+import org.group1.projectbackend.entity.enums.ActivityType;
 import org.group1.projectbackend.entity.SupportTicket;
 import org.group1.projectbackend.entity.User;
 import org.group1.projectbackend.entity.enums.TicketPriority;
@@ -13,6 +14,7 @@ import org.group1.projectbackend.entity.enums.TicketStatus;
 import org.group1.projectbackend.exception.ResourceNotFoundException;
 import org.group1.projectbackend.repository.SupportTicketRepository;
 import org.group1.projectbackend.repository.UserRepository;
+import org.group1.projectbackend.service.ActivityLogService;
 import org.group1.projectbackend.service.impl.SupportTicketServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,6 +26,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -35,6 +38,9 @@ class SupportTicketServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private ActivityLogService activityLogService;
 
     @InjectMocks
     private SupportTicketServiceImpl supportTicketService;
@@ -78,6 +84,32 @@ class SupportTicketServiceTest {
         assertThat(response.priority()).isEqualTo(TicketPriority.HIGH);
         assertThat(response.createdById()).isEqualTo(1L);
         verify(supportTicketRepository).save(any(SupportTicket.class));
+        verify(activityLogService).createActivityLog(argThat(dto ->
+                dto.getActivityType() == ActivityType.TICKET_CREATED
+                        && "Ticket created".equals(dto.getDescription())
+                        && dto.getUserId().equals(1L)
+                        && dto.getSupportTicketId().equals(10L)
+        ));
+    }
+
+    @Test
+    void shouldCreateTicketEvenWhenActivityLogFails() {
+        CreateTicketRequest request = new CreateTicketRequest(
+                "VPN access issue",
+                "Cannot connect to the company VPN from home.",
+                TicketPriority.HIGH
+        );
+
+        when(userRepository.findByUsername("alice")).thenReturn(Optional.of(user));
+        when(supportTicketRepository.save(any(SupportTicket.class))).thenReturn(ticket);
+        when(activityLogService.createActivityLog(any()))
+                .thenThrow(new RuntimeException("Activity log failed"));
+
+        TicketResponse response = supportTicketService.createTicket("alice", request);
+
+        assertThat(response).isNotNull();
+        assertThat(response.id()).isEqualTo(10L);
+        verify(supportTicketRepository).save(any(SupportTicket.class));
     }
 
     @Test
@@ -104,11 +136,34 @@ class SupportTicketServiceTest {
     @Test
     void shouldUpdateTicketStatus() {
         UpdateTicketStatusRequest request = new UpdateTicketStatusRequest(TicketStatus.RESOLVED);
+        when(userRepository.findByUsername("alice")).thenReturn(Optional.of(user));
         when(supportTicketRepository.findById(10L)).thenReturn(Optional.of(ticket));
         when(supportTicketRepository.save(ticket)).thenReturn(ticket);
 
-        TicketResponse response = supportTicketService.updateStatus(10L, request);
+        TicketResponse response = supportTicketService.updateStatus("alice", 10L, request);
 
+        assertThat(response.status()).isEqualTo(TicketStatus.RESOLVED);
+        verify(supportTicketRepository).save(ticket);
+        verify(activityLogService).createActivityLog(argThat(dto ->
+                dto.getActivityType() == ActivityType.TICKET_STATUS_CHANGED
+                        && "Ticket status changed from OPEN to RESOLVED".equals(dto.getDescription())
+                        && dto.getUserId().equals(1L)
+                        && dto.getSupportTicketId().equals(10L)
+        ));
+    }
+
+    @Test
+    void shouldUpdateTicketStatusEvenWhenActivityLogFails() {
+        UpdateTicketStatusRequest request = new UpdateTicketStatusRequest(TicketStatus.RESOLVED);
+        when(userRepository.findByUsername("alice")).thenReturn(Optional.of(user));
+        when(supportTicketRepository.findById(10L)).thenReturn(Optional.of(ticket));
+        when(supportTicketRepository.save(ticket)).thenReturn(ticket);
+        when(activityLogService.createActivityLog(any()))
+                .thenThrow(new RuntimeException("Activity log failed"));
+
+        TicketResponse response = supportTicketService.updateStatus("alice", 10L, request);
+
+        assertThat(response).isNotNull();
         assertThat(response.status()).isEqualTo(TicketStatus.RESOLVED);
         verify(supportTicketRepository).save(ticket);
     }
@@ -124,9 +179,10 @@ class SupportTicketServiceTest {
 
     @Test
     void shouldThrowWhenUpdatingMissingTicket() {
+        when(userRepository.findByUsername("alice")).thenReturn(Optional.of(user));
         when(supportTicketRepository.findById(999L)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> supportTicketService.updateStatus(999L, new UpdateTicketStatusRequest(TicketStatus.CLOSED)))
+        assertThatThrownBy(() -> supportTicketService.updateStatus("alice", 999L, new UpdateTicketStatusRequest(TicketStatus.CLOSED)))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessage("Ticket not found with id: 999");
     }

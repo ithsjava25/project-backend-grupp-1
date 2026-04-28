@@ -1,6 +1,7 @@
 package org.group1.projectbackend.controller;
 
 import java.nio.charset.StandardCharsets;
+import java.security.Principal;
 import java.util.List;
 import org.group1.projectbackend.dto.document.DocumentDownloadResponse;
 import org.group1.projectbackend.dto.document.DocumentResponse;
@@ -57,8 +58,11 @@ public class DocumentController {
     }
 
     @DeleteMapping("/documents/{documentId}")
-    public ResponseEntity<Void> deleteDocument(@PathVariable Long documentId) {
-        documentService.deleteDocument(documentId);
+    public ResponseEntity<Void> deleteDocument(
+            Principal principal,
+            @PathVariable Long documentId
+    ) {
+        documentService.deleteDocument(principal.getName(), documentId);
         return ResponseEntity.noContent().build();
     }
 }

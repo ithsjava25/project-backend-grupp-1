@@ -111,7 +111,7 @@ class SupportTicketControllerTest {
                 "alice"
         );
 
-        when(supportTicketService.updateStatus(any(), any())).thenReturn(updated);
+        when(supportTicketService.updateStatus(any(), any(), any())).thenReturn(updated);
 
         mockMvc.perform(put("/api/tickets/10/status")
                         .with(SecurityMockMvcRequestPostProcessors.csrf())

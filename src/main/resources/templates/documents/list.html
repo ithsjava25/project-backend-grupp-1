@@ -55,7 +55,9 @@
                             <a th:href="@{/api/documents/{id}/download(id=${document.id()})}">Ladda ner</a>
                         </td>
                         <td>
-                            <form th:action="@{/documents/{id}/delete(id=${document.id()})}" method="post">
+                            <form class="table-action-form"
+                                  th:action="@{/documents/{id}/delete(id=${document.id()})}"
+                                  method="post">
                                 <button type="submit">Ta bort</button>
                             </form>
                         </td>
