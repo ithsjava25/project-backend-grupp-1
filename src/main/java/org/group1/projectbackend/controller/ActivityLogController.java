@@ -8,7 +8,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/activitylogs")
@@ -42,24 +41,16 @@ public class ActivityLogController {
         );
     }
 
-
     @GetMapping("/ticket/{supportTicketId}")
-    public ResponseEntity<?> getByTicket(
+    public ResponseEntity<List<ActivityLogDto>> getByTicket(
             @PathVariable Long supportTicketId,
             @RequestParam(defaultValue = "asc") String sortDirection) {
 
-        List<ActivityLogDto> logs =
+        return ResponseEntity.ok(
                 activityLogService.getActivityLogsBySupportTicketId(
-                        supportTicketId, sortDirection);
-
-
-        if (logs == null) {
-            return ResponseEntity.status(404)
-                    .body(Map.of("message", "Ticket not found"));
-        }
-
-
-        return ResponseEntity.ok(logs);
+                        supportTicketId, sortDirection
+                )
+        );
     }
 
     @GetMapping("/user/{userId}")
