@@ -37,7 +37,9 @@ public class ActivityLogController {
     public ResponseEntity<ActivityLogDto> getActivityLogById(
             @PathVariable Long activityLogId) {
 
-        return ResponseEntity.ok(activityLogService.getActivityLogById(activityLogId));
+        return ResponseEntity.ok(
+                activityLogService.getActivityLogById(activityLogId)
+        );
     }
 
 
@@ -51,10 +53,11 @@ public class ActivityLogController {
                         supportTicketId, sortDirection);
 
 
-        if (logs == null || logs.isEmpty()) {
+        if (logs == null) {
             return ResponseEntity.status(404)
-                    .body(Map.of("message", "No logs found"));
+                    .body(Map.of("message", "Ticket not found"));
         }
+
 
         return ResponseEntity.ok(logs);
     }
@@ -66,7 +69,8 @@ public class ActivityLogController {
 
         return ResponseEntity.ok(
                 activityLogService.getActivityLogsByUserId(
-                        userId, sortDirection)
+                        userId, sortDirection
+                )
         );
     }
 }
