@@ -2,6 +2,7 @@ package org.group1.projectbackend.controller.web;
 
 import jakarta.validation.Valid;
 import java.security.Principal;
+import java.util.Set;
 import org.group1.projectbackend.dto.comment.CreateCommentDto;
 import org.group1.projectbackend.dto.ticket.CreateTicketRequest;
 import org.group1.projectbackend.dto.ticket.TicketResponse;
@@ -15,6 +16,8 @@ import org.group1.projectbackend.service.ActivityLogService;
 import org.group1.projectbackend.service.CommentService;
 import org.group1.projectbackend.service.DocumentService;
 import org.group1.projectbackend.service.SupportTicketService;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -75,9 +78,11 @@ public class TicketViewController {
     @PostMapping("/tickets")
     public String createTicket(
             Principal principal,
+            Authentication authentication,
             @Valid @ModelAttribute CreateTicketRequest request,
             BindingResult bindingResult,
-            Model model
+            Model model,
+            RedirectAttributes redirectAttributes
     ) {
         if (bindingResult.hasErrors()) {
             model.addAttribute("priorities", TicketPriority.values());
@@ -85,6 +90,11 @@ public class TicketViewController {
         }
 
         TicketResponse ticket = supportTicketService.createTicket(principal.getName(), request);
+
+        if (!hasPrivilegedAccess(authentication)) {
+            redirectAttributes.addFlashAttribute("ticketSuccess", "Ticket skapades.");
+            return "redirect:/";
+        }
 
         return "redirect:/tickets/" + ticket.id();
     }
@@ -155,5 +165,17 @@ public class TicketViewController {
         supportTicketService.updateStatus(principal.getName(), id, new UpdateTicketStatusRequest(status));
 
         return "redirect:/tickets/" + id;
+    }
+
+    private boolean hasPrivilegedAccess(Authentication authentication) {
+        if (authentication == null) {
+            return false;
+        }
+
+        Set<String> authorities = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(java.util.stream.Collectors.toSet());
+
+        return authorities.contains("ROLE_ADMIN") || authorities.contains("ROLE_HANDLER");
     }
 }

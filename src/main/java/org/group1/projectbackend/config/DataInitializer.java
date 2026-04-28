@@ -27,14 +27,24 @@ public class DataInitializer implements CommandLineRunner {
         jdbcTemplate.update("""
             INSERT INTO users (id, username, email, password, full_name, enabled, created_at)
             VALUES (1, 'testuser', 'testuser@example.com', ?, 'Test User', true, CURRENT_TIMESTAMP)
-            ON CONFLICT (id) DO NOTHING
+            ON CONFLICT (id) DO UPDATE SET
+              username = EXCLUDED.username,
+              email = EXCLUDED.email,
+              password = EXCLUDED.password,
+              full_name = EXCLUDED.full_name,
+              enabled = EXCLUDED.enabled
         """, userPassword);
 
         // ADMIN USER
         jdbcTemplate.update("""
             INSERT INTO users (id, username, email, password, full_name, enabled, created_at)
             VALUES (2, 'admin', 'admin@example.com', ?, 'Admin User', true, CURRENT_TIMESTAMP)
-            ON CONFLICT (id) DO NOTHING
+            ON CONFLICT (id) DO UPDATE SET
+              username = EXCLUDED.username,
+              email = EXCLUDED.email,
+              password = EXCLUDED.password,
+              full_name = EXCLUDED.full_name,
+              enabled = EXCLUDED.enabled
         """, adminPassword);
 
         //  ROLLER

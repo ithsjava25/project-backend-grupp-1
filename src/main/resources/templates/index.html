@@ -12,14 +12,16 @@
     <main>
         <section class="hero">
             <p class="eyebrow">Spring Boot Ticket System</p>
-            <h2>Intern support, samlad i ett snabbt arbetsflöde.</h2>
+            <h2>Intern support, samlad i ett flöde.</h2>
             <p class="lead">
                 En server-renderad demo för att skapa, följa upp och hantera interna ärenden
                 som IT-support, access requests, buggrapporter och HR-frågor.
             </p>
+            <p class="muted" th:if="${ticketSuccess}" th:text="${ticketSuccess}">Ticket skapades.</p>
             <div class="actions">
-                <a class="button-link" th:href="@{/tickets}">Visa tickets</a>
-                <a class="button-link secondary" th:href="@{/tickets/new}">Skapa ticket</a>
+                <a class="button-link" th:if="${hasPrivilegedAccess}" th:href="@{/tickets}">Visa tickets</a>
+                <a class="button-link secondary" th:if="${isAuthenticated}" th:href="@{/tickets/new}">Skapa ticket</a>
+                <a class="button-link secondary" th:if="${!isAuthenticated}" th:href="@{/login}">Logga in</a>
             </div>
         </section>
 

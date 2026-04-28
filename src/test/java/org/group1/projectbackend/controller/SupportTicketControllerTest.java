@@ -55,7 +55,7 @@ class SupportTicketControllerTest {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(roles = "USER")
     void shouldCreateTicket() throws Exception {
         when(supportTicketService.createTicket(any(), any())).thenReturn(ticketResponse);
 
@@ -90,7 +90,7 @@ class SupportTicketControllerTest {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(roles = "ADMIN")
     void shouldGetTicketById() throws Exception {
         when(supportTicketService.getTicketById(10L)).thenReturn(ticketResponse);
 
@@ -101,7 +101,7 @@ class SupportTicketControllerTest {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(roles = "ADMIN")
     void shouldListTicketsForUser() throws Exception {
         when(supportTicketService.getTicketsForUser(1L)).thenReturn(List.of(ticketResponse));
 
@@ -112,7 +112,7 @@ class SupportTicketControllerTest {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(roles = "ADMIN")
     void shouldUpdateTicketStatus() throws Exception {
         TicketResponse updated = new TicketResponse(
                 10L,
@@ -141,7 +141,7 @@ class SupportTicketControllerTest {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(roles = "ADMIN")
     void shouldReturnNotFoundWhenTicketDoesNotExist() throws Exception {
         when(supportTicketService.getTicketById(999L))
                 .thenThrow(new ResourceNotFoundException("Ticket not found with id: 999"));

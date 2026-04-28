@@ -62,7 +62,7 @@ class DocumentControllerTest {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(roles = "ADMIN")
     void shouldUploadDocumentForTicket() throws Exception {
         MockMultipartFile file = new MockMultipartFile(
                 "file",
@@ -102,7 +102,7 @@ class DocumentControllerTest {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(roles = "ADMIN")
     void shouldReturnBadRequestWhenUploadedFileIsEmpty() throws Exception {
         MockMultipartFile file = new MockMultipartFile(
                 "file",
@@ -123,7 +123,7 @@ class DocumentControllerTest {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(roles = "ADMIN")
     void shouldReturnInternalServerErrorWhenStorageFailsDuringUpload() throws Exception {
         MockMultipartFile file = new MockMultipartFile(
                 "file",
@@ -144,7 +144,7 @@ class DocumentControllerTest {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(roles = "ADMIN")
     void shouldListDocumentsForTicket() throws Exception {
         when(documentService.listDocumentsForTicket(10L)).thenReturn(List.of(documentResponse));
 
@@ -156,7 +156,7 @@ class DocumentControllerTest {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(roles = "ADMIN")
     void shouldDownloadDocument() throws Exception {
         byte[] content = "file-content".getBytes();
         DocumentDownloadResponse downloadResponse = new DocumentDownloadResponse(
@@ -179,7 +179,7 @@ class DocumentControllerTest {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(roles = "ADMIN")
     void shouldDeleteDocument() throws Exception {
         doNothing().when(documentService).deleteDocument(any(), eq(100L));
 
@@ -189,7 +189,7 @@ class DocumentControllerTest {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(roles = "ADMIN")
     void shouldReturnNotFoundWhenDocumentDoesNotExist() throws Exception {
         when(documentService.downloadDocument(999L))
                 .thenThrow(new ResourceNotFoundException("Document not found with id: 999"));

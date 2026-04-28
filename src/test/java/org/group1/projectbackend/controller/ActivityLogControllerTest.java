@@ -53,7 +53,7 @@ public class ActivityLogControllerTest {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(roles = "ADMIN")
     void testCreateActivityLog() throws Exception {
         when(activityLogService.createActivityLog(any(CreateActivityLogDto.class)))
                 .thenReturn(activityLogDto);
@@ -80,7 +80,7 @@ public class ActivityLogControllerTest {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(roles = "ADMIN")
     void testGetAllActivityLogs() throws Exception {
         when(activityLogService.getAllActivityLogs())
                 .thenReturn(List.of(activityLogDto));
@@ -97,7 +97,7 @@ public class ActivityLogControllerTest {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(roles = "ADMIN")
     void testGetActivityLogById() throws Exception {
         when(activityLogService.getActivityLogById(1L))
                 .thenReturn(activityLogDto);
@@ -114,7 +114,7 @@ public class ActivityLogControllerTest {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(roles = "ADMIN")
     void testGetActivityLogsBySupportTicketId() throws Exception {
         when(activityLogService.getActivityLogsBySupportTicketId(1L, "desc"))
                 .thenReturn(List.of(activityLogDto));
@@ -131,7 +131,7 @@ public class ActivityLogControllerTest {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(roles = "ADMIN")
     void testGetActivityLogsByUserId() throws Exception {
         when(activityLogService.getActivityLogsByUserId(1L, "asc"))
                 .thenReturn(List.of(activityLogDto));
@@ -148,7 +148,7 @@ public class ActivityLogControllerTest {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(roles = "ADMIN")
     void testGetActivityLogsBySupportTicketIdShouldReturnNotFoundWhenTicketDoesNotExist() throws Exception {
         when(activityLogService.getActivityLogsBySupportTicketId(999L, "desc"))
                 .thenThrow(new ResourceNotFoundException("Support ticket not found with id: 999"));

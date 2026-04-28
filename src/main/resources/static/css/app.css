@@ -162,6 +162,29 @@ main {
     transform: translateY(-2px);
 }
 
+.site-nav-form {
+    display: contents;
+}
+
+.site-nav-button {
+    border: 1px solid var(--border-default);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.045);
+    box-shadow: none;
+    color: var(--foreground-subtle);
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 0.55rem 0.85rem;
+}
+
+.site-nav-button:hover {
+    border-color: var(--border-hover);
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: none;
+    color: var(--foreground);
+    transform: translateY(-2px);
+}
+
 main {
     position: relative;
     margin-top: 1.2rem;

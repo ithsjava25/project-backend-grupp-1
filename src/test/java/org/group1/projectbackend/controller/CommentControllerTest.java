@@ -42,7 +42,7 @@ class CommentControllerTest {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(roles = "ADMIN")
     void testCreateComment() throws Exception {
         when(commentService.createComment(any())).thenReturn(commentDto);
 
@@ -62,7 +62,7 @@ class CommentControllerTest {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(roles = "ADMIN")
     void testGetCommentsBySupportTicketId() throws Exception {
         when(commentService.getCommentsBySupportTicketId(10L, "asc"))
                 .thenReturn(List.of(commentDto));
@@ -74,7 +74,7 @@ class CommentControllerTest {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(roles = "ADMIN")
     void testUpdateComment() throws Exception {
         CommentDto updatedComment = new CommentDto(
                 1L,
@@ -101,7 +101,7 @@ class CommentControllerTest {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(roles = "ADMIN")
     void testDeleteComment() throws Exception {
         mockMvc.perform(delete("/comments/1")
                         .with(csrf()))

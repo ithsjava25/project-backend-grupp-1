@@ -8,10 +8,15 @@
         </div>
         <nav class="site-nav" aria-label="Huvudnavigation">
             <a th:href="@{/}">Startsida</a>
-            <a th:href="@{/tickets}">Ticket-lista</a>
-            <a th:href="@{/tickets/new}">Skapa ticket</a>
-            <a th:href="@{/documents}">Dokument</a>
-            <a th:href="@{/activitylogs/view}">Activity Log</a>
+            <a th:if="${hasPrivilegedAccess}" th:href="@{/tickets}">Ticket-lista</a>
+            <a th:if="${isAuthenticated}" th:href="@{/tickets/new}">Skapa ticket</a>
+            <a th:if="${hasPrivilegedAccess}" th:href="@{/documents}">Dokument</a>
+            <a th:if="${hasPrivilegedAccess}" th:href="@{/activitylogs/view}">Activity Log</a>
+            <a th:if="${!isAuthenticated}" th:href="@{/login}">Logga in</a>
+            <form th:if="${isAuthenticated}" th:action="@{/logout}" method="post" class="site-nav-form">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                <button type="submit" class="site-nav-button">Logga ut</button>
+            </form>
         </nav>
     </header>
 </body>

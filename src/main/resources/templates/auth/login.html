@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="sv" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logga in</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+    <header th:replace="~{fragments/layout :: siteHeader}"></header>
+
+    <main>
+        <section class="hero">
+            <p class="eyebrow">Inloggning</p>
+            <h2>Logga in i systemet.</h2>
+            <p class="lead">
+                Använd ditt konto för att skapa tickets eller hantera hela ärendeflödet beroende på din roll.
+            </p>
+        </section>
+
+        <form th:action="@{/login}" method="post" class="section-wide">
+            <p class="feedback error" th:if="${param.error}">
+                Inloggningen misslyckades. Kontrollera användarnamn och lösenord.
+            </p>
+            <p class="feedback success" th:if="${param.logout}">
+                Du har loggats ut.
+            </p>
+
+            <div>
+                <label for="username">Användarnamn</label>
+                <input id="username" name="username" type="text" autocomplete="username" required>
+            </div>
+
+            <div>
+                <label for="password">Lösenord</label>
+                <input id="password" name="password" type="password" autocomplete="current-password" required>
+            </div>
+
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+            <button type="submit">Logga in</button>
+        </form>
+
+        <a class="back-link" th:href="@{/}">Tillbaka till startsidan</a>
+    </main>
+</body>
+</html>
