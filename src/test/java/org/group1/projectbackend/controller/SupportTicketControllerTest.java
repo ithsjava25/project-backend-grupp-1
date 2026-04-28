@@ -75,6 +75,21 @@ class SupportTicketControllerTest {
     }
 
     @Test
+    void shouldReturnUnauthorizedWhenCreatingTicketWithoutAuthentication() throws Exception {
+        mockMvc.perform(post("/api/tickets")
+                        .with(SecurityMockMvcRequestPostProcessors.csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "title": "VPN access issue",
+                                  "description": "Cannot connect to the company VPN from home.",
+                                  "priority": "HIGH"
+                                }
+                                """))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
     @WithMockUser
     void shouldGetTicketById() throws Exception {
         when(supportTicketService.getTicketById(10L)).thenReturn(ticketResponse);

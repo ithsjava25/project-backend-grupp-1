@@ -19,46 +19,33 @@ public class ActivityLogController {
         this.activityLogService = activityLogService;
     }
 
-    // Create activity log
     @PostMapping
     public ResponseEntity<ActivityLogDto> createActivityLog(@Valid @RequestBody CreateActivityLogDto dto) {
-        ActivityLogDto createdActivityLog = activityLogService.createActivityLog(dto);
-        return ResponseEntity.status(201).body(createdActivityLog);
+        return ResponseEntity.status(201).body(activityLogService.createActivityLog(dto));
     }
 
-    // Get all activity logs
     @GetMapping
     public ResponseEntity<List<ActivityLogDto>> getAllActivityLogs() {
-        List<ActivityLogDto> activityLogs = activityLogService.getAllActivityLogs();
-        return ResponseEntity.ok(activityLogs);
+        return ResponseEntity.ok(activityLogService.getAllActivityLogs());
     }
 
-    // Get activity log by id
     @GetMapping("/{activityLogId}")
     public ResponseEntity<ActivityLogDto> getActivityLogById(@PathVariable Long activityLogId) {
-        ActivityLogDto activityLog = activityLogService.getActivityLogById(activityLogId);
-        return ResponseEntity.ok(activityLog);
+        return ResponseEntity.ok(activityLogService.getActivityLogById(activityLogId));
     }
 
-    // Get activity logs by support ticket id
     @GetMapping("/ticket/{supportTicketId}")
-    public ResponseEntity<List<ActivityLogDto>> getActivityLogsBySupportTicketId(
+    public ResponseEntity<List<ActivityLogDto>> getByTicket(
             @PathVariable Long supportTicketId,
-            @RequestParam(defaultValue = "desc") String sortDirection
-    ) {
-        return ResponseEntity.ok(
-                activityLogService.getActivityLogsBySupportTicketId(supportTicketId, sortDirection)
-        );
+            @RequestParam(defaultValue = "desc") String sortDirection) {
+        List<ActivityLogDto> logs = activityLogService.getActivityLogsBySupportTicketId(supportTicketId, sortDirection);
+        return ResponseEntity.ok(logs);
     }
 
-    // Get activity logs by user id
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<ActivityLogDto>> getActivityLogsByUserId(
+    public ResponseEntity<List<ActivityLogDto>> getByUser(
             @PathVariable Long userId,
-            @RequestParam(defaultValue = "asc") String sortDirection
-    ) {
-        return ResponseEntity.ok(
-                activityLogService.getActivityLogsByUserId(userId, sortDirection)
-        );
+            @RequestParam(defaultValue = "asc") String sortDirection) {
+        return ResponseEntity.ok(activityLogService.getActivityLogsByUserId(userId, sortDirection));
     }
 }

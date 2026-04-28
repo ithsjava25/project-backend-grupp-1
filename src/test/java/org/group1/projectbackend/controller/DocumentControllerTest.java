@@ -86,6 +86,22 @@ class DocumentControllerTest {
     }
 
     @Test
+    void shouldReturnUnauthorizedWhenUploadingDocumentWithoutAuthentication() throws Exception {
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "setup-guide.pdf",
+                "application/pdf",
+                "file-content".getBytes()
+        );
+
+        mockMvc.perform(multipart("/api/tickets/10/documents")
+                        .file(file)
+                        .param("uploadedByUserId", "1")
+                        .with(csrf()))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
     @WithMockUser
     void shouldReturnBadRequestWhenUploadedFileIsEmpty() throws Exception {
         MockMultipartFile file = new MockMultipartFile(

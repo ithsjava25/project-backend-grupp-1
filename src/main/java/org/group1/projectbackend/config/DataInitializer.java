@@ -2,36 +2,66 @@ package org.group1.projectbackend.config;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @Component
 public class DataInitializer implements CommandLineRunner {
 
     private final JdbcTemplate jdbcTemplate;
+    private final PasswordEncoder passwordEncoder;
 
-    public DataInitializer(JdbcTemplate jdbcTemplate) {
+    public DataInitializer(JdbcTemplate jdbcTemplate, PasswordEncoder passwordEncoder) {
         this.jdbcTemplate = jdbcTemplate;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
     public void run(String... args) {
-        Integer userCount = jdbcTemplate.queryForObject(
-                "SELECT COUNT(*) FROM users WHERE id = 1",
-                Integer.class
-        );
 
-        if (userCount != null && userCount > 0) {
-            return;
-        }
+        // Kryptera lösenord
+        String userPassword = passwordEncoder.encode("password123");
+        String adminPassword = passwordEncoder.encode("admin123");
+
+        //  USER
+        jdbcTemplate.update("""
+            INSERT INTO users (id, username, email, password, full_name, enabled, created_at)
+            VALUES (1, 'testuser', 'testuser@example.com', ?, 'Test User', true, CURRENT_TIMESTAMP)
+            ON CONFLICT (id) DO NOTHING
+        """, userPassword);
+
+        // ADMIN USER
+        jdbcTemplate.update("""
+            INSERT INTO users (id, username, email, password, full_name, enabled, created_at)
+            VALUES (2, 'admin', 'admin@example.com', ?, 'Admin User', true, CURRENT_TIMESTAMP)
+            ON CONFLICT (id) DO NOTHING
+        """, adminPassword);
+
+        //  ROLLER
+        jdbcTemplate.update("""
+            INSERT INTO roles (id, name)
+            VALUES (1, 'ROLE_USER')
+            ON CONFLICT (id) DO NOTHING
+        """);
 
         jdbcTemplate.update("""
-    INSERT INTO users (id, username, email, password, full_name, enabled, created_at)
-    VALUES
-      (1, 'user', 'user@example.com', 'password', 'user', true, CURRENT_TIMESTAMP),
-      (2, 'adamaj01', 'adamaj@example.com', 'password', 'Adam', true, CURRENT_TIMESTAMP),
-      (3, 'emmtra01', 'emmtra@example.com', 'password', 'Emma', true, CURRENT_TIMESTAMP),
-      (4, 'erifa101', 'erifa1@example.com', 'password', 'Erika', true, CURRENT_TIMESTAMP),
-      (5, 'johjan01', 'johjan@example.com', 'password', 'Johan', true, CURRENT_TIMESTAMP)
-""");
+            INSERT INTO roles (id, name)
+            VALUES (2, 'ROLE_ADMIN')
+            ON CONFLICT (id) DO NOTHING
+        """);
+
+        //  Koppla USER → ROLE_USER
+        jdbcTemplate.update("""
+            INSERT INTO user_roles (user_id, role_id)
+            VALUES (1, 1)
+            ON CONFLICT DO NOTHING
+        """);
+
+        //  Koppla ADMIN → ROLE_ADMIN
+        jdbcTemplate.update("""
+            INSERT INTO user_roles (user_id, role_id)
+            VALUES (2, 2)
+            ON CONFLICT DO NOTHING
+        """);
     }
 }

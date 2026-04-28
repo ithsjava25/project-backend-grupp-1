@@ -66,7 +66,9 @@ public class ActivityLogService {
         return activityLogMapper.toDto(activityLog);
     }
 
+
     public List<ActivityLogDto> getActivityLogsBySupportTicketId(Long supportTicketId, String sortDirection) {
+
         if (!supportTicketRepository.existsById(supportTicketId)) {
             throw new ResourceNotFoundException("Support ticket not found with id: " + supportTicketId);
         }
