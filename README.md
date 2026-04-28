@@ -2,6 +2,9 @@
 
 Ett Spring Boot-baserat internt ärendehanteringssystem för företag. Projektet använder PostgreSQL som databas och Docker Compose för lokal utveckling.
 
+### Dashboard
+<img src="docs/images/dashboard.png" alt="Dashboard" width="700" />
+
 ## Lokal uppstart
 
 ### Förutsättningar
