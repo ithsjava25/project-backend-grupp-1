@@ -67,16 +67,22 @@ public class ActivityLogService {
     }
 
     public List<ActivityLogDto> getActivityLogsBySupportTicketId(Long supportTicketId, String sortDirection) {
+
         if (!supportTicketRepository.existsById(supportTicketId)) {
-            throw new ResourceNotFoundException("Support ticket not found with id: " + supportTicketId);
+            return null;
         }
 
         Sort sort = "desc".equalsIgnoreCase(sortDirection)
                 ? Sort.by("createdAt").descending()
                 : Sort.by("createdAt").ascending();
 
-        return activityLogRepository.findBySupportTicketId(supportTicketId, sort)
-                .stream()
+        var logs = activityLogRepository.findBySupportTicketId(supportTicketId, sort);
+
+        if (logs == null || logs.isEmpty()) {
+            return List.of();
+        }
+
+        return logs.stream()
                 .map(activityLogMapper::toDto)
                 .toList();
     }
